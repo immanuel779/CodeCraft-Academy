@@ -271,6 +271,10 @@
             background: #f4f4f4;
             color: #DB4437;
         }
+        .social-btn.facebook:hover {
+            background: #f0f4f9;
+            color: #4267B2;
+        }
 
         .footer-text {
             text-align: center;
@@ -384,13 +388,6 @@
             text-align: center;
             font-size: 0.85rem;
         }
-
-        @media (max-width: 576px) {
-            .navbar-custom .d-flex { gap: 0.75rem !important; }
-            .auth-card { padding: 35px 25px; }
-            .footer-text { margin-top: 30px; }
-            .social-divider { margin: 30px 0 25px; }
-        }
     </style>
 </head>
 <body>
@@ -406,7 +403,7 @@
                     <li class="nav-item"><a class="nav-link" href="login.html">Bundles</a></li>
                     <li class="nav-item"><a class="nav-link" href="login.html">Dashboard</a></li>
                 </ul>
-                <div class="d-flex align-items-center gap-4 flex-wrap justify-content-center mt-2 mt-lg-0">
+                <div class="d-flex align-items-center gap-3 flex-wrap justify-content-center mt-2 mt-lg-0">
                     <button class="btn btn-outline-brand" onclick="toggleForm('login')">Login</button>
                     <button class="btn btn-brand" onclick="toggleForm('signup')">SignUp</button>
                 </div>
@@ -424,7 +421,6 @@
                 </div>
                 <h2>Welcome back</h2>
 
-                <!-- Manual Password Login -->
                 <div class="floating-group">
                     <i class="fas fa-envelope input-icon"></i>
                     <input type="email" class="form-control" id="loginEmail" placeholder=" " required>
@@ -445,9 +441,9 @@
 
                 <div class="social-divider"><span>or continue with</span></div>
 
-                <!-- ✅ Social Buttons (Only Google) -->
                 <div class="social-btn-group">
                     <div class="social-btn google" onclick="loginWithGoogle()"><i class="fab fa-google"></i></div>
+                    <div class="social-btn facebook" onclick="loginWithFacebook()"><i class="fab fa-facebook-f"></i></div>
                 </div>
 
                 <p class="footer-text">Don't have an account? <a href="#" onclick="toggleForm('signup')">Sign up</a></p>
@@ -513,6 +509,7 @@
 
                 <div class="social-btn-group">
                     <div class="social-btn google" onclick="loginWithGoogle()"><i class="fab fa-google"></i></div>
+                    <div class="social-btn facebook" onclick="loginWithFacebook()"><i class="fab fa-facebook-f"></i></div>
                 </div>
 
                 <p class="footer-text">Already have an account? <a href="#" onclick="toggleForm('login')">Log in</a></p>
@@ -541,7 +538,7 @@
         </div>
     </div>
 
-    <!-- FOOTER -->
+     <!-- FOOTER -->
     <footer>
         <div class="container">
             <div class="row g-4">
@@ -589,12 +586,11 @@
     <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/@emailjs/browser@3/dist/email.min.js"></script>
     <script type="text/javascript">(function(){ emailjs.init("ETHPt49w1i1bym3oO"); })();</script>
 
-    <!-- ✅ FIREBASE AUTH (GOOGLE ONLY) -->
+    <!-- FIREBASE AUTH (Redirect Method - No Popups!) -->
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/12.16.0/firebase-app.js";
         import { getAnalytics } from "https://www.gstatic.com/firebasejs/12.16.0/firebase-analytics.js";
-        // ✅ Only importing Google Auth Provider
-        import { getAuth, GoogleAuthProvider, signInWithRedirect, getRedirectResult } from "https://www.gstatic.com/firebasejs/12.16.0/firebase-auth.js";
+        import { getAuth, GoogleAuthProvider, FacebookAuthProvider, signInWithRedirect, getRedirectResult } from "https://www.gstatic.com/firebasejs/12.16.0/firebase-auth.js";
 
         const firebaseConfig = {
             apiKey: "AIzaSyDEGDYcSe23vKUUM7CjnfcfBm1_ICoYOoo",
@@ -610,30 +606,41 @@
         const analytics = getAnalytics(app);
         const auth = getAuth(app);
 
-        // ✅ 1. CHECK GOOGLE REDIRECT RESULT
+        // ✅ 1. CHECK IF USER WAS REDIRECTED BACK AFTER LOGIN
         getRedirectResult(auth)
         .then((result) => {
             if (result) {
+                // User just logged in via redirect!
                 const user = result.user;
                 const firstName = user.displayName.split(' ')[0];
                 localStorage.setItem('codecraft_firstName', firstName);
                 localStorage.setItem('userRole', 'student');
                 localStorage.removeItem('authToken');
+                
+                // Redirect to dashboard
                 window.location.href = 'dashboard.html';
             }
         }).catch((error) => {
+            // Handle Errors here.
             console.error("Login error:", error.message);
         });
 
-        // ✅ 2. GOOGLE LOGIN TRIGGER
+        // ✅ 2. GOOGLE LOGIN (USING REDIRECT - No popups!)
         window.loginWithGoogle = function() {
             const provider = new GoogleAuthProvider();
             signInWithRedirect(auth, provider); 
         };
+
+        // ✅ 3. FACEBOOK LOGIN (USING REDIRECT - No popups!)
+        window.loginWithFacebook = function() {
+            const provider = new FacebookAuthProvider();
+            signInWithRedirect(auth, provider);
+        };
     </script>
 
-    <!-- MAIN LOGIC (Manual Password Auth & Render Keep-Alive) -->
+    <!-- MAIN LOGIC (Connects Login/Signup to Dashboard & Render Backend) -->
     <script>
+        // ✅ LIVE BACKEND URL (Your Render Link)
         const API_URL = "https://codecraft-tech-academy-backend.onrender.com"; 
 
         function toggleForm(form) {
@@ -642,23 +649,37 @@
             document.getElementById(form + '-section').classList.add('active');
         }
 
+        // 1. MANUAL LOGIN (Connects to Dashboard)
         async function handleLogin() {
             const email = document.getElementById('loginEmail').value.trim();
             const password = document.getElementById('loginPassword').value.trim();
+
             if (!email || !password) { alert("Please enter both your email and password!"); return; }
+
             try {
-                const res = await fetch(`${API_URL}/api/login`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ email, password }) });
+                const res = await fetch(`${API_URL}/api/login`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ email, password })
+                });
                 const data = await res.json();
                 if (res.ok) {
                     localStorage.setItem('authToken', data.token);
                     localStorage.setItem('codecraft_firstName', data.user.firstName);
                     localStorage.setItem('userRole', data.user.role);
                     localStorage.setItem('userEmail', data.user.email);
+                    
+                    // ✅ CONNECTS TO DASHBOARD
                     window.location.href = 'dashboard.html'; 
-                } else { alert(data.message || "Invalid email or password."); }
-            } catch (error) { alert("Network error. Please check your internet connection."); }
+                } else {
+                    alert(data.message || "Invalid email or password.");
+                }
+            } catch (error) {
+                alert("Network error. Please check your internet connection or confirm the Render backend is awake.");
+            }
         }
 
+        // 2. MANUAL SIGNUP (Connects to Dashboard)
         async function handleSignup() {
             const firstName = document.getElementById('firstNameInput').value.trim();
             const lastName = document.getElementById('lastNameInput').value.trim();
@@ -667,30 +688,54 @@
             const role = document.getElementById('roleSelect').value;
             const referralCode = document.getElementById('referralCode').value.trim();
 
-            if (!firstName || !lastName || !email || !password || !role) { alert("Please fill in all required fields!"); return; }
+            if (!firstName || !lastName || !email || !password || !role) {
+                alert("Please fill in all required fields!");
+                return;
+            }
 
             try {
-                const res = await fetch(`${API_URL}/api/signup`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ firstName, lastName, email, password, role, referralCode }) });
+                const res = await fetch(`${API_URL}/api/signup`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ firstName, lastName, email, password, role, referralCode })
+                });
                 const data = await res.json();
                 if (res.ok) {
                     localStorage.setItem('authToken', data.token);
                     localStorage.setItem('codecraft_firstName', data.user.firstName);
                     localStorage.setItem('userRole', data.user.role);
                     localStorage.setItem('userEmail', data.user.email);
+                    
+                    // 🟢 Record referral locally for testing
                     if (referralCode && referralCode.trim() !== '') {
                         let referrals = JSON.parse(localStorage.getItem('codecraft_referrals')) || [];
                         const alreadyExists = referrals.some(entry => entry.newUserEmail === email);
                         if (!alreadyExists) {
-                            referrals.push({ newUserName: firstName, newUserEmail: email, referrerCode: referralCode, date: new Date().toLocaleDateString() });
+                            referrals.push({
+                                newUserName: firstName,
+                                newUserEmail: email,
+                                referrerCode: referralCode,
+                                date: new Date().toLocaleDateString()
+                            });
                             localStorage.setItem('codecraft_referrals', JSON.stringify(referrals));
                         }
                     }
+
+                    // ✅ CONNECTS TO DASHBOARD
                     window.location.href = 'dashboard.html';
-                } else { alert(data.message || "Signup failed. Please try again."); }
-            } catch (error) { alert("Network error. Please check your internet connection."); }
+                } else {
+                    alert(data.message || "Signup failed. Please try again.");
+                }
+            } catch (error) {
+                alert("Network error. Please check your internet connection or confirm the Render backend is awake.");
+            }
         }
 
-        function openForgotPasswordModal() { const myModal = new bootstrap.Modal(document.getElementById('forgotPasswordModal')); myModal.show(); }
+        // 3. FORGOT PASSWORD
+        function openForgotPasswordModal() {
+            const myModal = new bootstrap.Modal(document.getElementById('forgotPasswordModal'));
+            myModal.show();
+        }
 
         function simulateReset() {
             const email = document.getElementById('resetEmail').value.trim();
@@ -715,7 +760,16 @@
             });
         }
 
-        const wakeUpBackend = () => { fetch(`${API_URL}/api/me`).then(res => { if (res.ok) console.log("✅ Backend kept awake successfully."); }).catch(() => { console.log("⏳ Render backend is currently waking up..."); }); };
+        // 🟢 RENDER KEEP-AWAKE SCRIPT (Pings every 10 minutes)
+        const wakeUpBackend = () => {
+            fetch(`${API_URL}/api/me`)
+                .then(res => {
+                    if (res.ok) console.log("✅ Backend kept awake successfully.");
+                })
+                .catch(() => {
+                    console.log("⏳ Render backend is currently waking up...");
+                });
+        };
         wakeUpBackend();
         setInterval(wakeUpBackend, 600000);
     </script>
