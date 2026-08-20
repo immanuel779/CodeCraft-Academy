@@ -1,0 +1,57 @@
+{
+  "name": "CodeCraft Academy",
+  "short_name": "CodeCraft",
+  "description": "Learn Skills That Build Your Future. Tech, AI, and Content Creation courses.",
+  "start_url": "/",
+  "scope": "/",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#1a1a2e",
+  "theme_color": "#FF6B00",
+  "categories": ["education", "technology"],
+  "prefer_related_applications": false,
+  "icons": [
+    {
+      "src": "codecraft-logo.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "codecraft-logo.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ],
+  "screenshots": [
+    {
+      "src": "screenshot-home.png",
+      "sizes": "1080x1920",
+      "type": "image/png",
+      "label": "CodeCraft Home Page"
+    },
+    {
+      "src": "screenshot-courses.png",
+      "sizes": "1080x1920",
+      "type": "image/png",
+      "label": "Explore Courses"
+    }
+  ],
+  "shortcuts": [
+    {
+      "name": "Dashboard",
+      "short_name": "Home",
+      "description": "Go to your learning dashboard",
+      "url": "dashboard.html",
+      "icons": [{ "src": "codecraft-logo.png", "sizes": "192x192" }]
+    },
+    {
+      "name": "Courses",
+      "short_name": "Courses",
+      "description": "Browse available courses",
+      "url": "courses.html",
+      "icons": [{ "src": "codecraft-logo.png", "sizes": "192x192" }]
+    }
+  ]
+}

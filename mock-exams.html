@@ -1,0 +1,508 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CodeCraft - Mock Exams</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root { --brand-orange: #FF6B00; --brand-black: #1A1A1A; }
+        body { background: #f4f6f9; font-family: 'Segoe UI', sans-serif; min-height: 100vh; display: flex; flex-direction: column; }
+
+        .navbar-custom { background: white; box-shadow: 0 2px 10px rgba(0,0,0,0.05); padding: 12px 0; }
+        .navbar-brand { font-weight: 700; color: var(--brand-black); font-size: 1.5rem; }
+        .navbar-brand i { color: var(--brand-orange); margin-right: 8px; }
+        .navbar-toggler { border: none; font-size: 1.5rem; }
+        
+        .offcanvas { max-width: 320px; border: none; background: white; }
+        .offcanvas-header { border-bottom: 1px solid #eee; padding: 15px 20px; }
+        .offcanvas-title { color: var(--brand-black); font-weight: 700; }
+        .offcanvas-title i { color: var(--brand-orange); margin-right: 8px; }
+        .offcanvas-body { padding: 0; display: flex; flex-direction: column; }
+        .sidebar-search { padding: 15px 20px; border-bottom: 1px solid #eee; }
+        .sidebar-search .input-group { border-radius: 50px; overflow: hidden; border: 1px solid #ddd; }
+        .sidebar-search .form-control { border: none; background: #fafafa; padding: 10px 15px; }
+        .sidebar-links { padding: 15px 0; flex-grow: 1; }
+        .sidebar-links a { display: block; padding: 12px 25px; color: #333; font-weight: 600; text-decoration: none; transition: 0.2s; }
+        .sidebar-links a:hover { background: #f8f9fa; color: var(--brand-orange); padding-left: 30px; }
+        .sidebar-logout-wrap { padding: 15px 20px; border-top: 1px solid #eee; }
+        .btn-sidebar-logout { background: var(--brand-orange); color: white; border: none; border-radius: 8px; width: 100%; padding: 12px; font-weight: 700; }
+
+        .exam-container { max-width: 700px; margin: 40px auto; padding: 0 20px; flex: 1; }
+        .page-header { margin-bottom: 25px; }
+        .page-header h2 { font-weight: 700; color: var(--brand-black); }
+
+        .exam-card { background: white; border-radius: 16px; padding: 20px; border: 1px solid #eee; box-shadow: 0 2px 10px rgba(0,0,0,0.03); margin-bottom: 15px; display: flex; justify-content: space-between; align-items: center; transition: 0.2s; }
+        .exam-card:hover { border-color: var(--brand-orange); transform: translateY(-2px); }
+        .exam-card h5 { margin: 0; font-weight: 700; color: var(--brand-black); }
+        .exam-card p { margin: 5px 0 0; color: #666; font-size: 0.9rem; }
+        .btn-start-exam { background: var(--brand-orange); color: white; border: none; border-radius: 8px; padding: 8px 20px; font-weight: 600; transition: 0.2s; }
+        .btn-start-exam:hover { background: #e05a00; color: white; transform: scale(1.05); }
+
+        #quizInterface { display: none; }
+        .quiz-card { background: white; border-radius: 16px; padding: 30px; border: 1px solid #eee; box-shadow: 0 4px 15px rgba(0,0,0,0.05); }
+        .question-text { font-weight: 700; font-size: 1.2rem; color: var(--brand-black); margin-bottom: 20px; }
+        .options-list { list-style: none; padding: 0; }
+        .options-list li { background: #f8f9fa; border: 1px solid #eee; border-radius: 8px; padding: 12px 15px; margin-bottom: 10px; cursor: pointer; transition: 0.2s; }
+        .options-list li:hover { background: #e9ecef; border-color: var(--brand-orange); }
+        .options-list li.selected { background: #fff3e6; border-color: var(--brand-orange); }
+        .options-list li.correct { background: #d1fae5; border-color: #10b981; }
+        .options-list li.wrong { background: #fee2e2; border-color: #ef4444; }
+
+        .quiz-controls { display: flex; justify-content: space-between; align-items: center; margin-top: 20px; }
+        .btn-quiz { background: #e9ecef; border: none; border-radius: 8px; padding: 8px 20px; font-weight: 600; transition: 0.2s; }
+        .btn-quiz:hover { background: #dee2e6; }
+        .btn-quiz.submit { background: var(--brand-orange); color: white; }
+        .btn-quiz.submit:hover { background: #e05a00; }
+
+        #resultContainer { display: none; text-align: center; padding: 30px; }
+        .result-score { font-size: 3rem; font-weight: 800; color: var(--brand-orange); }
+        .result-message { font-size: 1.2rem; font-weight: 600; margin-top: 10px; }
+        .result-details { margin-top: 20px; color: #555; }
+
+        footer { background: var(--brand-black); color: #ccc; padding: 40px 0 20px; margin-top: auto; }
+        footer h5 { color: white; font-weight: 600; }
+        footer ul { list-style: none; padding: 0; }
+        footer ul li a { color: #aaa; text-decoration: none; transition: 0.3s; }
+        footer ul li a:hover { color: var(--brand-orange); padding-left: 5px; }
+        .footer-bottom { border-top: 1px solid #333; padding-top: 20px; margin-top: 30px; text-align: center; }
+    </style>
+</head>
+<body>
+
+    <nav class="navbar navbar-expand-lg navbar-custom">
+        <div class="container">
+            <a class="navbar-brand" href="dashboard.html"><i class="fas fa-code"></i> CodeCraft</a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="offcanvas" data-bs-target="#sidebarMenu">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+        </div>
+    </nav>
+
+    <div class="offcanvas offcanvas-end" tabindex="-1" id="sidebarMenu">
+        <div class="offcanvas-header">
+            <h5 class="offcanvas-title"><i class="fas fa-code text-warning"></i> CodeCraft</h5>
+            <button type="button" class="btn-close" data-bs-dismiss="offcanvas"></button>
+        </div>
+        <div class="offcanvas-body">
+            <div class="sidebar-search">
+                <div class="input-group">
+                    <span class="input-group-text"><i class="fas fa-search"></i></span>
+                    <input type="text" class="form-control" placeholder="Search courses...">
+                </div>
+            </div>
+            <div class="sidebar-links">
+                <a href="courses.html">Courses</a>
+                <a href="create-bundle.html">Bundles</a>
+                <a href="dashboard.html">Dashboard</a>
+                <a href="profile.html">Profile</a>
+                <a href="instructor-tools.html">Instructor Tools</a>
+                <a href="support.html">Support</a>
+                <a href="mock-exams.html">Mock Exams</a>
+                <a href="affiliate.html">Affiliate Program</a>
+                <a href="faq.html">FAQ</a>
+                <a href="legal.html">Legal</a>
+            </div>
+            <div class="sidebar-logout-wrap">
+                <button class="btn-sidebar-logout" onclick="logoutUser()">Logout</button>
+            </div>
+        </div>
+    </div>
+
+    <div class="exam-container">
+        <div class="page-header">
+            <h2>Mock Exams</h2>
+            <p class="text-muted">Test your knowledge with comprehensive 20-question exams for each course.</p>
+        </div>
+
+        <div id="examList"></div>
+        <div id="quizInterface">
+            <div class="quiz-card">
+                <div class="d-flex justify-content-between align-items-center mb-3">
+                    <span id="examTitleDisplay" style="font-weight: 600; color: var(--brand-black);"></span>
+                    <span id="questionCounter" class="text-muted small">1 / 20</span>
+                </div>
+                <div class="question-text" id="questionText">Loading...</div>
+                <ul class="options-list" id="optionsList"></ul>
+                <div class="quiz-controls">
+                    <button class="btn-quiz" id="prevBtn" onclick="prevQuestion()">Previous</button>
+                    <button class="btn-quiz" id="nextBtn" onclick="nextQuestion()">Next</button>
+                    <button class="btn-quiz submit" id="submitBtn" onclick="submitExam()" style="display: none;">Submit Exam</button>
+                </div>
+            </div>
+        </div>
+
+        <div id="resultContainer">
+            <h3 class="mb-3">📝 Exam Results</h3>
+            <div class="result-score" id="resultScore">0/0</div>
+            <div class="result-message" id="resultMessage"></div>
+            <div class="result-details" id="resultDetails"></div>
+            <button class="btn btn-brand mt-4" onclick="goBackToExams()" style="background: var(--brand-orange); color: white; border: none; border-radius: 8px; padding: 10px 25px; font-weight: 600;">Back to Exams</button>
+        </div>
+    </div>
+
+    <footer>
+        <div class="container">
+            <div class="row g-4">
+                <div class="col-md-4"><h5><i class="fas fa-code text-warning"></i> CodeCraft</h5><p style="font-size: 0.9rem;">Empowering developers and instructors.</p></div>
+                <div class="col-md-4"><h5>Quick Links</h5><ul><li><a href="courses.html">Courses</a></li><li><a href="create-bundle.html">Bundles</a></li><li><a href="dashboard.html">Dashboard</a></li></ul></div>
+                <div class="col-md-4"><h5>Support</h5><ul><li><a href="support.html">Help Center</a></li><li><a href="contact.html">Contact Us</a></li></ul></div>
+            </div>
+            <div class="footer-bottom">&copy; 2026 CodeCraft Tech Company. All rights reserved.</div>
+        </div>
+    </footer>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const firstName = localStorage.getItem('codecraft_firstName');
+            if (!firstName) { window.location.href = 'login.html'; }
+            renderExamList();
+        });
+
+        function logoutUser() { localStorage.clear(); window.location.href = 'login.html'; }
+        function openReportPage() { window.location.href = 'support.html'; }
+
+        // 10 EXAMS, 20 QUESTIONS EACH
+        const mockExams = [
+            { id: 1, title: "Faceless YouTube Channel", description: "Test your knowledge on AI automation and content creation.", questions: [
+                { q: "Which AI tool is best for generating faceless video scripts?", options: ["ChatGPT", "Adobe Photoshop", "Excel", "Zoom"], correct: 0 },
+                { q: "What is the recommended aspect ratio for YouTube Shorts?", options: ["16:9", "9:16", "4:3", "1:1"], correct: 1 },
+                { q: "Which tool is best for AI voiceovers?", options: ["ElevenLabs", "Microsoft Word", "Google Docs", "Notepad"], correct: 0 },
+                { q: "What does 'SEO' stand for?", options: ["Search Engine Optimization", "Social Engagement Order", "Screen Editor Output", "System Error Operation"], correct: 0 },
+                { q: "What is the best way to find faceless video content ideas?", options: ["Guess randomly", "Check trending topics", "Ignore trends", "Copy others blindly"], correct: 1 },
+                { q: "What is the main benefit of AI in faceless channels?", options: ["Faster editing", "Better lighting", "No camera required", "Better sound"], correct: 2 },
+                { q: "Which metric is most important for YouTube growth?", options: ["Subscriber count", "Watch time", "Comment count", "Video resolution"], correct: 1 },
+                { q: "What is a 'Call to Action'?", options: ["A prompt to like/subscribe", "An introduction", "A list of equipment", "A background track"], correct: 0 },
+                { q: "How do you monetize a YouTube channel?", options: ["Reach 1000 subscribers", "AdSense and sponsorships", "Twitter ads", "Instagram posts"], correct: 1 },
+                { q: "What does 'Faceless' mean?", options: ["Not showing your face", "Using no equipment", "Recording in dark rooms", "No AI used"], correct: 0 },
+                { q: "Which software is used for thumbnail design?", options: ["Canva", "Excel", "Notepad", "VS Code"], correct: 0 },
+                { q: "What is a good video length for a YouTube tutorial?", options: ["10-15 mins", "1 hour", "5 seconds", "2 hours"], correct: 0 },
+                { q: "How often should you upload to grow a channel?", options: ["Consistently weekly", "Once a year", "Whenever you feel like", "Daily"], correct: 0 },
+                { q: "Which section of YouTube Analytics shows audience retention?", options: ["Engagement", "Reach", "Revenue", "Comments"], correct: 0 },
+                { q: "What is an 'End Screen' used for?", options: ["Promoting other videos", "Ending the video early", "Adding ads", "Changing the thumbnail"], correct: 0 },
+                { q: "Can you monetize a faceless channel with AI?", options: ["Yes", "No", "Only with 1M subs", "Only if you show your face"], correct: 0 },
+                { q: "Which AI can generate video clips from text?", options: ["Sora", "ChatGPT", "Gemini", "Claude"], correct: 0 },
+                { q: "What is 'Watch Time'?", options: ["Total minutes viewers watched", "Number of views", "Number of comments", "Shares"], correct: 0 },
+                { q: "Why is a strong hook important?", options: ["Retains viewers in the first few seconds", "Looks good in the thumbnail", "Is required by YouTube", "Boosts audio"], correct: 0 },
+                { q: "What is a 'Community Post' used for?", options: ["Engaging subscribers between videos", "Posting long videos", "Promoting ads", "Spamming"], correct: 0 }
+            ]},
+            { id: 2, title: "3D Modelling & Animation (Blender)", description: "Test your skills on Blender modeling and animation.", questions: [
+                { q: "What is the shortcut to extrude in Blender?", options: ["Ctrl + E", "E", "Shift + E", "Alt + E"], correct: 1 },
+                { q: "What does Subdivision Surface do?", options: ["Smooths it", "Sharpens it", "Deletes it", "Scales it"], correct: 0 },
+                { q: "Which feature is used for keyframe animation?", options: ["Auto Keying", "Auto Smooth", "Auto Merge", "Auto Save"], correct: 0 },
+                { q: "What mode do you use to manipulate vertices?", options: ["Object Mode", "Edit Mode", "Sculpt Mode", "Render Mode"], correct: 1 },
+                { q: "Which modifier is great for mirroring objects?", options: ["Array Modifier", "Mirror Modifier", "Bevel Modifier", "Subdivision Modifier"], correct: 1 },
+                { q: "What is UV mapping used for?", options: ["Applying textures", "Creating vertices", "Animating objects", "Scaling meshes"], correct: 0 },
+                { q: "Which render engine is built into Blender?", options: ["Cycles", "Unreal", "V-Ray", "Arnold"], correct: 0 },
+                { q: "What does a 'rig' refer to?", options: ["The skeleton of a model", "The camera setup", "The lighting layout", "The export format"], correct: 0 },
+                { q: "How do you add a new object in Blender?", options: ["Shift + A", "Ctrl + N", "Shift + D", "Alt + M"], correct: 0 },
+                { q: "Which Blender view is best for precise modeling?", options: ["Orthographic", "Perspective", "Camera", "User"], correct: 0 },
+                { q: "What is a 'Bevel' modifier used for?", options: ["Rounding edges", "Sharpening edges", "Deleting edges", "Scaling edges"], correct: 0 },
+                { q: "How do you set the origin of a mesh?", options: ["Set Origin tool", "Delete tool", "Extrude tool", "Loop Cut tool"], correct: 0 },
+                { q: "What is a 'Shader' in Blender?", options: ["Determines material appearance", "The 3D model", "The render engine", "The audio"], correct: 0 },
+                { q: "What does 'Eevee' refer to?", options: ["A real-time render engine", "A green frog", "A modeling tool", "A texture"], correct: 0 },
+                { q: "Which key do you press to duplicate an object?", options: ["Shift + D", "Ctrl + D", "Alt + D", "Space + D"], correct: 0 },
+                { q: "Can Blender be used for 2D animation?", options: ["Yes", "No", "Only 3D", "Only with plugins"], correct: 0 },
+                { q: "What is a 'Keyframe'?", options: ["A point in time with animation data", "The start of the timeline", "The end of the video", "A camera angle"], correct: 0 },
+                { q: "Which file format is best for exporting 3D models?", options: [".obj or .fbx", ".jpg", ".mp4", ".txt"], correct: 0 },
+                { q: "What is the name of Blender's node system?", options: ["Shader Nodes", "Object Nodes", "Mesh Nodes", "Light Nodes"], correct: 0 },
+                { q: "How do you save a Blender project?", options: ["File > Save", "Ctrl + S", "Shift + S", "Alt + S"], correct: 0 }
+            ]},
+            { id: 3, title: "Full Stack Web Development", description: "Test your knowledge on React, Node.js, and MongoDB.", questions: [
+                { q: "Which hook is used for side effects in React?", options: ["useState", "useEffect", "useContext", "useRef"], correct: 1 },
+                { q: "What is the virtual DOM in React?", options: ["A real copy of the DOM", "A lightweight copy for performance", "A database", "A CSS stylesheet"], correct: 1 },
+                { q: "Which database is preferred with Node.js?", options: ["MySQL", "MongoDB", "PostgreSQL", "SQLite"], correct: 1 },
+                { q: "What is the entry point of an Express app?", options: ["index.html", "server.js", "app.css", "package.json"], correct: 1 },
+                { q: "Which HTTP method is used to update data?", options: ["GET", "POST", "PUT", "DELETE"], correct: 2 },
+                { q: "What is the main purpose of React Router?", options: ["Handling navigation", "Fetching data", "Managing state", "Styling components"], correct: 0 },
+                { q: "What is a Promise in JavaScript?", options: ["A value that may be available later", "A loop", "A variable type", "A CSS class"], correct: 0 },
+                { q: "Which middleware parses JSON in Express?", options: ["express.json()", "express.parse()", "express.urlencoded()", "express.static()"], correct: 0 },
+                { q: "What is a 'stateless' component?", options: ["A component without internal state", "A component with a database", "A class component", "A layout component"], correct: 0 },
+                { q: "Which DB operation retrieves all documents?", options: ["find()", "insert()", "update()", "delete()"], correct: 0 },
+                { q: "Which command starts a Node.js server?", options: ["node server.js", "npm start", "run server", "start node"], correct: 0 },
+                { q: "What is a 'REST API'?", options: ["A architectural style for APIs", "A type of database", "A coding language", "A framework"], correct: 0 },
+                { q: "What is the purpose of 'npm'?", options: ["Node Package Manager", "Network Protocol Machine", "Node Project Manager", "Native Process Maker"], correct: 0 },
+                { q: "Which React hook manages local state?", options: ["useState", "useEffect", "useContext", "useRef"], correct: 0 },
+                { q: "What does 'Full Stack' mean?", options: ["Frontend + Backend", "Only Frontend", "Only Backend", "Just the database"], correct: 0 },
+                { q: "What is a 'JWT' used for?", options: ["Authentication", "Styling", "Database queries", "File uploads"], correct: 0 },
+                { q: "Which language is used for frontend logic?", options: ["JavaScript", "Python", "Java", "C++"], correct: 0 },
+                { q: "What is 'MongoDB' known as?", options: ["A NoSQL database", "A SQL database", "A relational database", "A spreadsheet"], correct: 0 },
+                { q: "Which library is used to connect Node.js and MongoDB?", options: ["Mongoose", "Sequelize", "TypeORM", "Knex"], correct: 0 },
+                { q: "What is the default port for a Node.js app?", options: ["3000", "5000", "8080", "80"], correct: 1 }
+            ]},
+            { id: 4, title: "Graphic Design (Photoshop & Illustrator)", description: "Test your skills on color theory, typography, and tools.", questions: [
+                { q: "Which file format keeps layers in Photoshop?", options: [".jpg", ".png", ".psd", ".gif"], correct: 2 },
+                { q: "Shortcut to create a new layer?", options: ["Ctrl + Shift + N", "Ctrl + N", "Alt + N", "Shift + N"], correct: 0 },
+                { q: "Which tool creates vector graphics?", options: ["Pen Tool", "Eraser", "Lasso", "Brush"], correct: 0 },
+                { q: "What does RGB stand for?", options: ["Red Green Blue", "Red Gray Black", "Rainbow Green Blue", "Right Gray Black"], correct: 0 },
+                { q: "Which principle focuses on visual balance?", options: ["Contrast", "Proximity", "Alignment", "All of the above"], correct: 3 },
+                { q: "What is a raster image?", options: ["Pixel-based", "Math-based", "3D", "Vector-based"], correct: 0 },
+                { q: "Which tool in Illustrator creates complex shapes?", options: ["Shape Builder", "Pencil Tool", "Paint Bucket", "Eraser Tool"], correct: 0 },
+                { q: "What does the 'Blend' tool do?", options: ["Mixes colors and shapes", "Deletes layers", "Creates a grid", "Adds text"], correct: 0 },
+                { q: "Which color model is used for web design?", options: ["RGB", "CMYK", "Lab", "HSB"], correct: 0 },
+                { q: "Shortcut to deselect in Photoshop?", options: ["Ctrl + D", "Ctrl + Z", "Ctrl + X", "Ctrl + Shift + D"], correct: 0 },
+                { q: "What does 'CC' stand for in Adobe?", options: ["Creative Cloud", "Creative Coding", "Copy Center", "Color Chart"], correct: 0 },
+                { q: "What is a 'Mask' used for?", options: ["Hiding parts of a layer", "Deleting a layer", "Copying a layer", "Locking a layer"], correct: 0 },
+                { q: "What is the 'Artboard' tool used for?", options: ["Creating multiple workspaces", "Drawing lines", "Applying filters", "Cropping images"], correct: 0 },
+                { q: "What is 'Kerning' in typography?", options: ["Adjusting space between letters", "Adjusting line height", "Changing font size", "Bold text"], correct: 0 },
+                { q: "Which tool creates a gradient?", options: ["Gradient Tool", "Brush Tool", "Eraser Tool", "Text Tool"], correct: 0 },
+                { q: "What is a 'White Space' in design?", options: ["Empty space for balance", "The background", "White color", "No text"], correct: 0 },
+                { q: "What is the Canvas size for standard web banner?", options: ["728x90", "1920x1080", "1080x1920", "128x128"], correct: 0 },
+                { q: "Which format supports transparency?", options: ["PNG", "JPEG", "GIF", "BMP"], correct: 0 },
+                { q: "What is a 'Layer Style'?", options: ["Effects like shadows and strokes", "A new document", "A color swatch", "A grid"], correct: 0 },
+                { q: "What does 'Ctrl+T' do in Photoshop?", options: ["Free Transform", "Text tool", "Crop tool", "Toggle brush"], correct: 0 }
+            ]},
+            { id: 5, title: "Video Editing with CapCut", description: "Test your knowledge on CapCut editing techniques.", questions: [
+                { q: "Which tool cuts a video clip in CapCut?", options: ["Split", "Delete", "Copy", "Paste"], correct: 0 },
+                { q: "How do you add text overlays?", options: ["Text Tool", "Sticker Tool", "Filter Tool", "Audio Tool"], correct: 0 },
+                { q: "Feature for tracking moving objects?", options: ["Motion Tracking", "Stabilization", "Transitions", "Keyframes"], correct: 0 },
+                { q: "How do you adjust speed?", options: ["Speed Tool", "Volume Tool", "Crop Tool", "Rotate Tool"], correct: 0 },
+                { q: "Best format for high-quality export?", options: ["1080p", "720p", "480p", "360p"], correct: 0 },
+                { q: "What are keyframes used for?", options: ["Advanced animations", "Text formatting", "Audio recording", "Image cropping"], correct: 0 },
+                { q: "How to remove background noise?", options: ["Noise reduction", "Reverb", "Echo", "Distortion"], correct: 0 },
+                { q: "Feature to overlay multiple clips?", options: ["Overlay", "Merge", "Combine", "Group"], correct: 0 },
+                { q: "What is 'Chroma Key' used for?", options: ["Green screen effect", "Color grading", "Text animation", "Audio mixing"], correct: 0 },
+                { q: "How to add a transition?", options: ["Transition button", "Merge button", "Split tool", "Speed tool"], correct: 0 },
+                { q: "What does 'Fade' mean?", options: ["Gradual transition in/out", "Sharp cut", "Fast forward", "Reverse play"], correct: 0 },
+                { q: "What is the 'Freeze Frame' feature?", options: ["Pause a single frame", "Delete a frame", "Duplicate a frame", "Move a frame"], correct: 0 },
+                { q: "How do you adjust volume?", options: ["Audio icon", "Video icon", "Text icon", "Sticker icon"], correct: 0 },
+                { q: "What is a 'Crop' tool used for?", options: ["Cutting edges", "Changing colors", "Adding text", "Adding audio"], correct: 0 },
+                { q: "Can you add background music?", options: ["Yes", "No", "Only in Pro", "Only on PC"], correct: 0 },
+                { q: "What is a 'Template' in CapCut?", options: ["Pre-made video design", "A tool", "A filter", "A transition"], correct: 0 },
+                { q: "What is 'Auto Caption' used for?", options: ["Generate subtitles", "Add audio", "Crop video", "Change speed"], correct: 0 },
+                { q: "How do you save a project?", options: ["Save/Export", "Close", "Edit", "Preview"], correct: 0 },
+                { q: "What is the purpose of 'Masking'?", options: ["Hide parts of a video", "Delete clips", "Add text", "Change audio"], correct: 0 },
+                { q: "Which file type is best to export for YouTube?", options: ["MP4", "MOV", "AVI", "MKV"], correct: 0 }
+            ]},
+            { id: 6, title: "App Development with Flutter", description: "Test your understanding of Dart and Flutter widgets.", questions: [
+                { q: "What language does Flutter use?", options: ["Dart", "Java", "Python", "Swift"], correct: 0 },
+                { q: "What is a Stateless Widget?", options: ["A widget with no state", "A widget with state", "A layout widget", "A button widget"], correct: 0 },
+                { q: "Which widget is used for a column layout?", options: ["Row", "Column", "List", "Stack"], correct: 1 },
+                { q: "What does 'hot reload' do?", options: ["Updates UI instantly", "Restarts the full app", "Resets the database", "Deletes the app"], correct: 1 },
+                { q: "Where is the entry point of a Flutter app?", options: ["main.dart", "index.dart", "app.dart", "start.dart"], correct: 0 },
+                { q: "What is a widget in Flutter?", options: ["A UI element", "A database", "A type of variable", "A web browser"], correct: 0 },
+                { q: "Which widget creates a scrollable list?", options: ["ListView", "Column", "Row", "Stack"], correct: 0 },
+                { q: "Purpose of `setState()`?", options: ["Update the UI", "Fetch data", "Save files", "Connect to internet"], correct: 0 },
+                { q: "Which widget manages a single child?", options: ["Container", "Column", "Row", "Stack"], correct: 0 },
+                { q: "How does Flutter render UI on iOS/Android?", options: ["Uses Skia engine", "WebView", "React Native bridge", "HTML5"], correct: 0 },
+                { q: "What is a 'Future' in Dart?", options: ["An async operation", "A loop", "A variable", "A widget"], correct: 0 },
+                { q: "What is the default app name in Flutter?", options: ["flutter_app", "my_app", "app", "default"], correct: 0 },
+                { q: "What is `pubspec.yaml` used for?", options: ["Dependency management", "UI design", "Asset storage", "Database"], correct: 0 },
+                { q: "Which IDE is popular for Flutter?", options: ["Android Studio", "VS Code", "Xcode", "Notepad"], correct: 0 },
+                { q: "What is a 'MaterialApp' widget?", options: ["Root widget for design", "A button widget", "A column widget", "A list widget"], correct: 0 },
+                { q: "Can Flutter build web apps?", options: ["Yes", "No", "Only Android", "Only iOS"], correct: 0 },
+                { q: "What is `async` and `await` used for?", options: ["Async programming", "String manipulation", "Math operations", "UI updates"], correct: 0 },
+                { q: "What is an 'AppBar' in Flutter?", options: ["A top navigation bar", "A bottom menu", "A sidebar", "A dialog"], correct: 0 },
+                { q: "How to create a button in Flutter?", options: ["ElevatedButton", "Button", "PushButton", "ClickButton"], correct: 0 },
+                { q: "Which format does Flutter use for images?", options: ["PNG/JPG", "DOC", "XLS", "TXT"], correct: 0 }
+            ]},
+            { id: 7, title: "UI/UX Mega Course", description: "Test your knowledge on user interfaces and experiences.", questions: [
+                { q: "What does UX stand for?", options: ["User Experience", "User Extension", "Unified X", "Unit X"], correct: 0 },
+                { q: "Which tool is commonly used for prototyping?", options: ["Figma", "Photoshop", "Word", "Excel"], correct: 0 },
+                { q: "What is a wireframe in design?", options: ["A basic outline", "A full design", "A code script", "A user test"], correct: 0 },
+                { q: "Best color scheme for accessibility?", options: ["High contrast", "Pastel", "Neon", "Dark only"], correct: 0 },
+                { q: "What does 'Figma' allow?", options: ["Collaborative design", "Write code", "Edit video", "Animate 3D"], correct: 0 },
+                { q: "What is a User Persona?", options: ["A fictional user profile", "A real user", "A developer", "A stakeholder"], correct: 0 },
+                { q: "Main goal of UX design?", options: ["Solve user problems", "Make things beautiful", "Make code efficient", "Increase ads"], correct: 0 },
+                { q: "What is an empathy map?", options: ["Understand user needs", "Map road routes", "Design logos", "Build databases"], correct: 0 },
+                { q: "What is usability testing?", options: ["Testing with real users", "Writing code tests", "Testing colors", "Testing fonts"], correct: 0 },
+                { q: "Which principle focuses on intuitive navigation?", options: ["Consistency", "Contrast", "Balance", "Repetition"], correct: 0 },
+                { q: "What is a 'User Flow'?", options: ["Path a user takes through a site", "A flow chart", "A design pattern", "A CSS grid"], correct: 0 },
+                { q: "What is a 'Hero Section'?", options: ["Top header of a webpage", "A superhero image", "A footer", "A sidebar"], correct: 0 },
+                { q: "What is the difference between UI and UX?", options: ["UI is visual, UX is experience", "UI is coding, UX is design", "UI is mobile, UX is web", "They are the same"], correct: 0 },
+                { q: "Which tool is good for creating a sitemap?", options: ["Lucidchart", "Figma", "Photoshop", "Word"], correct: 0 },
+                { q: "What does 'Affordance' mean in UX?", options: ["Visual cues for interaction", "Color choice", "Typography size", "Image resolution"], correct: 0 },
+                { q: "What is a 'Mockup'?", options: ["A static high-fidelity design", "A low-fidelity sketch", "An interactive prototype", "A code file"], correct: 0 },
+                { q: "What is the 'Rule of Thirds'?", options: ["A composition guideline", "A color rule", "A font rule", "A coding rule"], correct: 0 },
+                { q: "Why is mobile-first design important?", options: ["Because more users are on mobile", "It is easier to code", "It looks better on desktop", "It's a trend"], correct: 0 },
+                { q: "What is a 'Design System'?", options: ["A library of reusable components", "A coding language", "A database", "A design file"], correct: 0 },
+                { q: "What does 'feedback' mean in UX?", options: ["System response to user actions", "User reviews", "Code comments", "Form submissions"], correct: 0 }
+            ]},
+            { id: 8, title: "Audio Editing & Music Production", description: "Test your skills on mixing and audio production.", questions: [
+                { q: "What does EQ stand for?", options: ["Equalizer", "Equation", "Echo Quality", "Ear Quiz"], correct: 0 },
+                { q: "Standard sample rate for good quality audio?", options: ["44.1 kHz", "12 kHz", "8 kHz", "100 kHz"], correct: 0 },
+                { q: "Tool used to remove background noise?", options: ["Noise Reduction", "Reverb", "Delay", "Tempo"], correct: 0 },
+                { q: "Function of a compressor?", options: ["Makes loud sounds quieter", "Makes everything louder", "Adds reverb", "Adds delay"], correct: 0 },
+                { q: "Popular DAW for music production?", options: ["FL Studio", "VS Code", "Photoshop", "Blender"], correct: 0 },
+                { q: "What does 'reverb' add?", options: ["Ambient echo", "Volume boost", "Noise reduction", "Pitch shift"], correct: 0 },
+                { q: "What is panning?", options: ["Placing sound left/right", "Adjusting volume", "Cutting silence", "Adding echo"], correct: 0 },
+                { q: "Which format is lossless?", options: ["WAV", "MP3", "AAC", "OGG"], correct: 0 },
+                { q: "What does a high-pass filter do?", options: ["Removes low frequencies", "Removes high frequencies", "Boosts bass", "Boosts treble"], correct: 0 },
+                { q: "Purpose of a limiter?", options: ["Prevents audio clipping", "Adds reverb", "Changes pitch", "Increases tempo"], correct: 0 },
+                { q: "What is a 'BPM'?", options: ["Beats Per Minute", "Bits Per Minute", "Bytes Per Minute", "Bass Per Measure"], correct: 0 },
+                { q: "What is a 'MIDI' controller?", options: ["Hardware that plays digital notes", "A guitar", "A microphone", "A speaker"], correct: 0 },
+                { q: "What is 'Quantization' in music?", options: ["Snapping notes to the grid", "Adjusting volume", "Changing pitch", "Adding reverb"], correct: 0 },
+                { q: "What is the standard tuning for a guitar?", options: ["EADGBE", "CAGED", "ADGCEA", "EBGDAE"], correct: 0 },
+                { q: "What is a 'Sidechain' effect?", options: ["Volume ducking from another track", "Adding delay", "Adding EQ", "Increasing gain"], correct: 0 },
+                { q: "What is an 'Audio Interface' used for?", options: ["Recording audio into a computer", "Playing video games", "Editing images", "Writing code"], correct: 0 },
+                { q: "What does 'Bit Depth' affect?", options: ["Dynamic range and detail", "Speed", "Pitch", "Volume"], correct: 0 },
+                { q: "What is a 'Sound Wave'?", options: ["A vibration through the air", "A visual graph", "A video frame", "A text file"], correct: 0 },
+                { q: "What does 'pitch' mean?", options: ["The highness or lowness of a note", "The volume", "The tempo", "The beat"], correct: 0 },
+                { q: "Which instrument family does a guitar belong to?", options: ["String", "Percussion", "Brass", "Woodwind"], correct: 0 }
+            ]},
+            { id: 9, title: "Generative AI & ChatGPT", description: "Test your knowledge on AI tools and automation.", questions: [
+                { q: "What is a prompt in AI?", options: ["The input text", "The output result", "The model", "The hardware"], correct: 0 },
+                { q: "Which company created ChatGPT?", options: ["OpenAI", "Google", "Meta", "Microsoft"], correct: 0 },
+                { q: "What is prompt engineering?", options: ["Crafting effective inputs", "Writing code", "Designing graphics", "Building apps"], correct: 0 },
+                { q: "Can ChatGPT generate code?", options: ["Yes", "No", "Only Python", "Only Java"], correct: 0 },
+                { q: "One business use case for AI?", options: ["Automating content", "Manual typing", "Phone calls", "Paper filing"], correct: 0 },
+                { q: "A limitation of AI language models?", options: ["They can hallucinate", "They are too fast", "They can't use internet", "They don't understand"], correct: 0 },
+                { q: "What is fine-tuning?", options: ["Training on specific data", "Deleting the model", "Adding hardware", "Changing colors"], correct: 0 },
+                { q: "Which AI generates images from text?", options: ["DALL-E", "ChatGPT", "Midjourney", "Both DALL-E and Midjourney"], correct: 3 },
+                { q: "What is an AI hallucination?", options: ["Generating incorrect info", "Generating images", "Writing code", "Translating languages"], correct: 0 },
+                { q: "How can businesses use ChatGPT?", options: ["Customer support/Content", "Only for entertainment", "Only students", "Only tech companies"], correct: 0 },
+                { q: "What is a 'Token' in AI models?", options: ["A unit of text processed", "A payment method", "A database row", "A file"], correct: 0 },
+                { q: "What is 'API' used for?", options: ["Integrating AI into apps", "Making video calls", "Sending emails", "Creating spreadsheets"], correct: 0 },
+                { q: "What is the purpose of 'Model Weights'?", options: ["The learned parameters of AI", "The physical weight", "The server load", "The memory usage"], correct: 0 },
+                { q: "What is 'Sentiment Analysis'?", options: ["Determining emotions from text", "Counting words", "Translating language", "Summarizing text"], correct: 0 },
+                { q: "Can AI generate music?", options: ["Yes", "No", "Only with plugins", "Only classical"], correct: 0 },
+                { q: "What is a 'Chatbot'?", options: ["AI that converses", "A physical robot", "A database", "A web browser"], correct: 0 },
+                { q: "What does 'NLP' stand for?", options: ["Natural Language Processing", "Network Load Protocol", "Non-Linear Programming", "New Language Pack"], correct: 0 },
+                { q: "What is the advantage of using AI for writing?", options: ["Speed and efficiency", "It never makes mistakes", "It can feel emotions", "It has no bias"], correct: 0 },
+                { q: "What is the 'Context Window'?", options: ["Amount of text AI can remember", "The physical screen", "A popup window", "The loading bar"], correct: 0 },
+                { q: "What is the future of AI?", options: ["Advancing automation", "Taking over the world", "Slowly fading away", "A temporary trend"], correct: 0 }
+            ]},
+            { id: 10, title: "Digital Marketing & SEO", description: "Test your skills on SEO and social media strategies.", questions: [
+                { q: "What does SEO help with?", options: ["Search rankings", "Social media ads", "Email spam", "App design"], correct: 0 },
+                { q: "Platform best for visual marketing?", options: ["Instagram", "LinkedIn", "Twitter", "Reddit"], correct: 0 },
+                { q: "What is a 'call to action'?", options: ["A prompt to engage", "A phone call", "A closing statement", "An intro"], correct: 0 },
+                { q: "Which metric tracks website visitors?", options: ["Traffic", "Sales", "Leads", "Conversions"], correct: 0 },
+                { q: "Channel great for long-form content?", options: ["YouTube", "Twitter", "TikTok", "Snapchat"], correct: 0 },
+                { q: "What is a 'lead' in marketing?", options: ["A potential customer", "A paid subscriber", "A website visitor", "A competitor"], correct: 0 },
+                { q: "Top SEO ranking factor?", options: ["Quality backlinks", "Number of images", "Website color", "Font size"], correct: 0 },
+                { q: "What is A/B testing?", options: ["Testing two versions of a page", "Testing code", "Testing audio", "Testing video"], correct: 0 },
+                { q: "Goal of influencer marketing?", options: ["Leverage audience trust", "Sell to friends", "Post random content", "Avoid algorithms"], correct: 0 },
+                { q: "What does ROI stand for?", options: ["Return on Investment", "Return on Interest", "Revenue on Impact", "Rate of Increase"], correct: 0 },
+                { q: "What is 'PPC' advertising?", options: ["Pay Per Click", "Pay Per Call", "Post Per Comment", "Public Policy Campaign"], correct: 0 },
+                { q: "What is 'Organic Traffic'?", options: ["Free visitors from search", "Paid visitors", "Social media visitors", "Email visitors"], correct: 0 },
+                { q: "What is a 'Landing Page'?", options: ["Specific page for marketing", "The homepage", "A blog post", "A contact form"], correct: 0 },
+                { q: "Which platform is best for B2B marketing?", options: ["LinkedIn", "TikTok", "Instagram", "Snapchat"], correct: 0 },
+                { q: "What is 'Content Marketing'?", options: ["Creating valuable content to attract customers", "Paid ads", "SEO", "Social media"], correct: 0 },
+                { q: "What is a 'Funnel' in marketing?", options: ["Customer journey stages", "A design tool", "A database", "A coding function"], correct: 0 },
+                { q: "What is 'Email Marketing'?", options: ["Sending emails to customers", "Spam", "Social media", "Ads on TV"], correct: 0 },
+                { q: "What is a 'Backlink'?", options: ["A link from another site to yours", "A link within your site", "A broken link", "A download link"], correct: 0 },
+                { q: "What does 'Analytics' track?", options: ["User behavior and data", "Code errors", "Server load", "Image sizes"], correct: 0 },
+                { q: "What is the 'Engagement Rate'?", options: ["Interaction divided by reach", "Total sales", "Total clicks", "Total impressions"], correct: 0 }
+            ]}
+        ];
+
+        let currentExam = null, currentQuestionIndex = 0, selectedAnswers = [], isSubmitted = false;
+
+        function renderExamList() {
+            const container = document.getElementById('examList');
+            let html = '';
+            mockExams.forEach(exam => {
+                html += `<div class="exam-card">
+                            <div><h5>${exam.title}</h5><p>${exam.description}</p></div>
+                            <button class="btn-start-exam" onclick="startExam(${exam.id})">Start Exam</button>
+                        </div>`;
+            });
+            container.innerHTML = html;
+        }
+
+        function startExam(id) {
+            currentExam = mockExams.find(e => e.id === id);
+            if (!currentExam) return;
+            currentQuestionIndex = 0;
+            selectedAnswers = new Array(currentExam.questions.length).fill(null);
+            isSubmitted = false;
+
+            document.getElementById('examList').style.display = 'none';
+            document.getElementById('quizInterface').style.display = 'block';
+            document.getElementById('resultContainer').style.display = 'none';
+            document.getElementById('examTitleDisplay').innerText = currentExam.title;
+            renderQuestion();
+        }
+
+        function renderQuestion() {
+            const qData = currentExam.questions[currentQuestionIndex];
+            document.getElementById('questionCounter').innerText = `${currentQuestionIndex + 1} / ${currentExam.questions.length}`;
+            document.getElementById('questionText').innerText = qData.q;
+
+            const optionsList = document.getElementById('optionsList');
+            optionsList.innerHTML = '';
+            qData.options.forEach((opt, index) => {
+                const li = document.createElement('li');
+                li.innerText = `${String.fromCharCode(65 + index)}. ${opt}`;
+                li.onclick = () => selectOption(index);
+                if (selectedAnswers[currentQuestionIndex] === index) li.classList.add('selected');
+                optionsList.appendChild(li);
+            });
+
+            document.getElementById('prevBtn').style.display = currentQuestionIndex === 0 ? 'none' : 'inline-block';
+            document.getElementById('nextBtn').style.display = currentQuestionIndex === currentExam.questions.length - 1 ? 'none' : 'inline-block';
+            document.getElementById('submitBtn').style.display = currentQuestionIndex === currentExam.questions.length - 1 ? 'inline-block' : 'none';
+        }
+
+        function selectOption(index) {
+            if (isSubmitted) return;
+            selectedAnswers[currentQuestionIndex] = index;
+            const items = document.getElementById('optionsList').children;
+            Array.from(items).forEach((li, i) => li.classList.toggle('selected', i === index));
+        }
+
+        function nextQuestion() {
+            if (currentQuestionIndex < currentExam.questions.length - 1) { currentQuestionIndex++; renderQuestion(); }
+        }
+
+        function prevQuestion() {
+            if (currentQuestionIndex > 0) { currentQuestionIndex--; renderQuestion(); }
+        }
+
+        function submitExam() {
+            if (selectedAnswers.includes(null)) { alert("Please answer all questions before submitting."); return; }
+            isSubmitted = true;
+            let correctCount = 0;
+            const details = [];
+            currentExam.questions.forEach((q, index) => {
+                const userAns = selectedAnswers[index];
+                const isCorrect = userAns === q.correct;
+                if (isCorrect) correctCount++;
+                details.push({ question: q.q, userAnswer: q.options[userAns], correctAnswer: q.options[q.correct], isCorrect });
+            });
+
+            // ✅ 1. PREPARE WHATSAPP REDIRECT (Triggers immediately upon submission)
+            const firstName = localStorage.getItem('codecraft_firstName') || 'Student';
+            const courseTitle = currentExam.title;
+            const adminNumber = "2347089584607"; 
+
+            const waMessage = `Hello CodeCraft Admin! 👋 I have just completed the "${courseTitle}" mock exam. My name is ${firstName}. Please issue my certificate. 🙏`;
+            const waUrl = `https://wa.me/${adminNumber}?text=${encodeURIComponent(waMessage)}`;
+            
+            // Open WhatsApp in a new tab
+            window.open(waUrl, '_blank');
+
+            // ✅ 2. DISPLAY RESULTS
+            document.getElementById('quizInterface').style.display = 'none';
+            document.getElementById('resultContainer').style.display = 'block';
+            document.getElementById('resultScore').innerText = `${correctCount} / ${currentExam.questions.length}`;
+            const percentage = Math.round((correctCount / currentExam.questions.length) * 100);
+            const msg = document.getElementById('resultMessage');
+            
+            if (percentage >= 70) { 
+                msg.innerText = "🎉 Excellent! You passed!";
+                msg.style.color = "#16a34a";
+            } else { 
+                msg.innerText = "📚 Keep studying! You can retry anytime.";
+                msg.style.color = "#ef4444"; 
+            }
+
+            let detailsHTML = `<div class="mt-3 text-start">`;
+            details.forEach((d, i) => {
+                detailsHTML += `<div class="mb-2 p-2 border-bottom"><strong>Q${i+1}:</strong> ${d.question}<br><span style="color: ${d.isCorrect ? '#16a34a' : '#ef4444'};">${d.isCorrect ? '✅' : '❌'} Your answer: ${d.userAnswer}</span>${!d.isCorrect ? `<br><small class="text-muted">Correct: ${d.correctAnswer}</small>` : ''}</div>`;
+            });
+            detailsHTML += `</div>`;
+            document.getElementById('resultDetails').innerHTML = detailsHTML;
+        }
+
+        function goBackToExams() {
+            document.getElementById('resultContainer').style.display = 'none';
+            document.getElementById('examList').style.display = 'block';
+            document.getElementById('quizInterface').style.display = 'none';
+            currentExam = null; currentQuestionIndex = 0; selectedAnswers = []; isSubmitted = false;
+        }
+    </script>
+</body>
+</html>

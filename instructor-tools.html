@@ -1,0 +1,528 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <title>CodeCraft - Instructor Tools</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root { 
+            --brand-orange: #FF6B00; 
+            --brand-black: #1A1A1A; 
+        }
+        body { 
+            background: #f4f6f9; 
+            font-family: 'Segoe UI', sans-serif; 
+            min-height: 100vh; 
+            display: flex; 
+            flex-direction: column; 
+        }
+
+        /* --- NAVBAR --- */
+        .navbar-custom { 
+            background: white; 
+            box-shadow: 0 2px 10px rgba(0,0,0,0.05); 
+            padding: 12px 0; 
+        }
+        .navbar-brand { 
+            font-weight: 700; 
+            color: var(--brand-black); 
+            font-size: 1.5rem; 
+        }
+        .navbar-brand i { 
+            color: var(--brand-orange); 
+            margin-right: 8px; 
+        }
+        .navbar-toggler { 
+            border: none; 
+            font-size: 1.5rem; 
+        }
+        .navbar-toggler:focus { 
+            box-shadow: none; 
+        }
+
+        /* --- SIDEBAR (WHITE VERSION) --- */
+        .offcanvas { 
+            max-width: 320px; 
+            border: none; 
+            background: white; 
+        }
+        .offcanvas-header { 
+            border-bottom: 1px solid #eee; 
+            padding: 15px 20px; 
+        }
+        .offcanvas-title { 
+            color: var(--brand-black); 
+            font-weight: 700; 
+        }
+        .offcanvas-title i { 
+            color: var(--brand-orange); 
+            margin-right: 8px; 
+        }
+        .offcanvas-body { 
+            padding: 0; 
+            display: flex; 
+            flex-direction: column; 
+        }
+        .sidebar-search { 
+            padding: 15px 20px; 
+            border-bottom: 1px solid #eee; 
+        }
+        .sidebar-search .input-group { 
+            border-radius: 50px; 
+            overflow: hidden; 
+            border: 1px solid #ddd; 
+        }
+        .sidebar-search .form-control { 
+            border: none; 
+            background: #fafafa; 
+            padding: 10px 15px; 
+        }
+        .sidebar-search .input-group-text { 
+            background: #fafafa; 
+            border: none; 
+            color: #999; 
+        }
+        .sidebar-links { 
+            padding: 15px 0; 
+            flex-grow: 1; 
+        }
+        .sidebar-links a { 
+            display: block; 
+            padding: 12px 25px; 
+            color: #333; 
+            font-weight: 600; 
+            text-decoration: none; 
+            transition: all 0.2s; 
+        }
+        .sidebar-links a:hover { 
+            background: #f8f9fa; 
+            color: var(--brand-orange); 
+            padding-left: 30px; 
+        }
+        .sidebar-logout-wrap { 
+            padding: 15px 20px; 
+            border-top: 1px solid #eee; 
+        }
+        .btn-sidebar-logout { 
+            background: var(--brand-orange); 
+            color: white; 
+            border: none; 
+            border-radius: 8px; 
+            width: 100%; 
+            padding: 12px; 
+            font-weight: 700; 
+            transition: 0.3s; 
+        }
+        .btn-sidebar-logout:hover { 
+            background: #e05a00; 
+            color: white; 
+        }
+
+        /* --- INSTRUCTOR TOOLS CONTENT --- */
+        .dash-container { 
+            max-width: 800px; 
+            margin: 40px auto; 
+            padding: 0 20px; 
+            flex: 1;
+        }
+        .page-header { 
+            margin-bottom: 25px; 
+        }
+        .page-header h2 { 
+            font-weight: 700; 
+            color: var(--brand-black); 
+            margin-bottom: 5px; 
+        }
+        .page-header p { 
+            color: #666; 
+        }
+
+        /* Stat Cards */
+        .stat-card { 
+            background: white; 
+            border-radius: 12px; 
+            padding: 20px; 
+            text-align: center; 
+            border: 1px solid #eee; 
+            box-shadow: 0 2px 10px rgba(0,0,0,0.03); 
+            transition: 0.2s; 
+            height: 100%;
+        }
+        .stat-card:hover { 
+            transform: translateY(-3px); 
+            border-color: var(--brand-orange); 
+        }
+        .stat-card h4 { 
+            font-weight: 700; 
+            color: var(--brand-black); 
+            margin: 0; 
+            font-size: 1.8rem;
+        }
+        .stat-card span { 
+            color: #888; 
+            font-size: 0.85rem; 
+        }
+
+        /* Quick Action Buttons */
+        .quick-actions { 
+            display: flex; 
+            gap: 15px; 
+            margin-bottom: 30px; 
+            flex-wrap: wrap;
+        }
+        .btn-action { 
+            background: white; 
+            color: var(--brand-orange); 
+            border: 1px solid var(--brand-orange); 
+            border-radius: 50px; 
+            padding: 10px 25px; 
+            font-weight: 600; 
+            transition: 0.2s; 
+            text-decoration: none;
+        }
+        .btn-action:hover { 
+            background: var(--brand-orange); 
+            color: white; 
+            transform: translateY(-2px); 
+            box-shadow: 0 4px 10px rgba(255,107,0,0.2);
+        }
+
+        /* Table */
+        .tools-card { 
+            background: white; 
+            border-radius: 16px; 
+            padding: 20px; 
+            border: 1px solid #eee; 
+            box-shadow: 0 2px 10px rgba(0,0,0,0.03); 
+        }
+        .tools-card h5 { 
+            font-weight: 600; 
+            color: var(--brand-black); 
+            margin-bottom: 15px; 
+        }
+        .table { 
+            vertical-align: middle; 
+            margin-bottom: 0;
+        }
+        .status-badge-published { 
+            background: #dcfce7; 
+            color: #16a34a; 
+            padding: 4px 12px; 
+            border-radius: 50px; 
+            font-size: 0.8rem; 
+            font-weight: 600; 
+        }
+        .status-badge-pending { 
+            background: #fef9c3; 
+            color: #ca8a04; 
+            padding: 4px 12px; 
+            border-radius: 50px; 
+            font-size: 0.8rem; 
+            font-weight: 600; 
+        }
+
+        /* Bug Icon & Footer */
+        #reportBugBtn { 
+            position: fixed; 
+            bottom: 25px; 
+            left: 25px; 
+            width: 55px; 
+            height: 55px; 
+            background: rgba(255, 255, 255, 0.9); 
+            backdrop-filter: blur(8px);
+            border-radius: 50%; 
+            display: flex; 
+            align-items: center; 
+            justify-content: center; 
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1); 
+            cursor: pointer; 
+            z-index: 9999;
+            transition: all 0.3s ease;
+            border: 1px solid rgba(255,107,0,0.2);
+        }
+        #reportBugBtn:hover { 
+            transform: scale(1.1); 
+        }
+        
+        /* Fixed Responsive Footer */
+        footer { 
+            background: var(--brand-black); 
+            color: #ccc; 
+            padding: 40px 0 20px; 
+            margin-top: auto; 
+        }
+        footer h5 { 
+            color: white; 
+            font-weight: 600; 
+            margin-bottom: 20px; 
+            font-size: 1.1rem; 
+        }
+        footer ul { 
+            list-style: none; 
+            padding: 0; 
+        }
+        footer ul li { 
+            margin-bottom: 8px; 
+        }
+        footer ul li a { 
+            color: #aaa; 
+            text-decoration: none; 
+            transition: 0.3s; 
+        }
+        footer ul li a:hover { 
+            color: var(--brand-orange); 
+            padding-left: 5px; 
+        }
+        .footer-bottom { 
+            border-top: 1px solid #333; 
+            padding-top: 20px; 
+            margin-top: 30px; 
+            text-align: center; 
+            font-size: 0.9rem; 
+        }
+
+        /* Mobile Responsive Tweaks */
+        @media (max-width: 768px) {
+            .dash-container { margin: 20px auto; }
+            .quick-actions { justify-content: center; }
+            .stat-card { padding: 15px; }
+            .stat-card h4 { font-size: 1.5rem; }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- NAVBAR -->
+    <nav class="navbar navbar-expand-lg navbar-custom">
+        <div class="container">
+            <a class="navbar-brand" href="dashboard.html"><i class="fas fa-code"></i> CodeCraft</a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="offcanvas" data-bs-target="#sidebarMenu">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+        </div>
+    </nav>
+
+    <!-- SIDEBAR -->
+    <div class="offcanvas offcanvas-end" tabindex="-1" id="sidebarMenu">
+        <div class="offcanvas-header">
+            <h5 class="offcanvas-title"><i class="fas fa-code text-warning"></i> CodeCraft</h5>
+            <button type="button" class="btn-close" data-bs-dismiss="offcanvas"></button>
+        </div>
+        <div class="offcanvas-body">
+            <div class="sidebar-search">
+                <div class="input-group">
+                    <span class="input-group-text"><i class="fas fa-search"></i></span>
+                    <input type="text" class="form-control" placeholder="Search courses...">
+                </div>
+            </div>
+            <div class="sidebar-links">
+                <a href="courses.html">Courses</a>
+                <a href="create-bundle.html">Bundles</a>
+                <a href="dashboard.html">Dashboard</a>
+                <a href="profile.html">Profile</a>
+                <a href="instructor-tools.html">Instructor Tools</a>
+                <a href="support.html">Support</a>
+                <a href="mock-exams.html">Mock Exams</a>
+                <a href="affiliate.html">Affiliate Program</a>
+                <a href="faq.html">FAQ</a>
+                <a href="legal.html">Legal</a>
+            </div>
+            <div class="sidebar-logout-wrap">
+                <button class="btn-sidebar-logout" onclick="logoutUser()">Logout</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- INSTRUCTOR TOOLS MAIN CONTENT -->
+    <div class="dash-container">
+        <div class="page-header">
+            <h2>Instructor Tools</h2>
+            <p>Manage your courses, track earnings, and monitor student enrollments.</p>
+        </div>
+
+        <!-- Stats Row -->
+        <div class="row g-3 mb-4">
+            <div class="col-6 col-md-3">
+                <div class="stat-card">
+                    <h4 id="totalRevenue">₦0</h4>
+                    <span>Total Revenue</span>
+                </div>
+            </div>
+            <div class="col-6 col-md-3">
+                <div class="stat-card">
+                    <h4 id="totalStudents">0</h4>
+                    <span>Total Students</span>
+                </div>
+            </div>
+            <div class="col-6 col-md-3">
+                <div class="stat-card">
+                    <h4 id="publishedCourses">0</h4>
+                    <span>Published Courses</span>
+                </div>
+            </div>
+            <div class="col-6 col-md-3">
+                <div class="stat-card">
+                    <h4 id="pendingApprovals">0</h4>
+                    <span>Pending Approvals</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Quick Actions -->
+        <div class="quick-actions">
+            <a href="create-course.html" class="btn-action"><i class="fas fa-plus-circle me-2"></i>New Course</a>
+            <a href="create-bundle.html" class="btn-action"><i class="fas fa-layer-group me-2"></i>New Bundle</a>
+        </div>
+
+        <!-- Course Performance Table -->
+        <div class="tools-card">
+            <h5>📊 My Course Performance</h5>
+            <div class="table-responsive">
+                <table class="table table-hover">
+                    <thead>
+                        <tr>
+                            <th>Course Title</th>
+                            <th class="text-center">Enrollments</th>
+                            <th class="text-center">Revenue</th>
+                            <th class="text-center">Status</th>
+                        </tr>
+                    </thead>
+                    <tbody id="coursePerformanceBody">
+                        <!-- Content loaded via JavaScript -->
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <!-- FLOATING BUG ICON -->
+    <div id="reportBugBtn" onclick="openReportPage()">
+        <i class="fas fa-bug" style="color: #FF6B00; font-size: 22px;"></i>
+    </div>
+
+    <!-- RESPONSIVE FOOTER -->
+    <footer>
+        <div class="container">
+            <div class="row g-4">
+                <!-- Col 1: Brand -->
+                <div class="col-12 col-md-4 text-center text-md-start">
+                    <h5><i class="fas fa-code text-warning"></i> CodeCraft</h5>
+                    <p style="font-size: 0.9rem; color: #aaa;">Empowering developers and instructors.</p>
+                </div>
+                <!-- Col 2: Quick Links -->
+                <div class="col-12 col-md-4 text-center text-md-start">
+                    <h5>Quick Links</h5>
+                    <ul>
+                        <li><a href="courses.html">Courses</a></li>
+                        <li><a href="create-bundle.html">Bundles</a></li>
+                        <li><a href="dashboard.html">Dashboard</a></li>
+                    </ul>
+                </div>
+                <!-- Col 3: Support -->
+                <div class="col-12 col-md-4 text-center text-md-start">
+                    <h5>Support</h5>
+                    <ul>
+                        <li><a href="support.html">Help Center</a></li>
+                        <li><a href="contact.html">Contact Us</a></li>
+                    </ul>
+                </div>
+            </div>
+            <div class="footer-bottom">
+                &copy; 2026 CodeCraft Tech Company. All rights reserved.
+            </div>
+        </div>
+    </footer>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        // ─── CONFIGURATION ──────────────────────────────────────────────
+        // const API_URL = "http://localhost:5000"; // UNCOMMENT WHEN BACKEND IS READY
+
+        // ─── PROTECT PAGE ──────────────────────────────────────────────
+        document.addEventListener('DOMContentLoaded', function() {
+            const firstName = localStorage.getItem('codecraft_firstName');
+            const role = localStorage.getItem('userRole');
+            
+            if (!firstName || role !== 'instructor') {
+                alert("Access Denied: This page is only for Instructors.");
+                window.location.href = 'dashboard.html';
+                return;
+            }
+            renderToolsData();
+        });
+
+        function logoutUser() {
+            localStorage.clear();
+            window.location.href = 'login.html';
+        }
+
+        function openReportPage() {
+            window.location.href = 'support.html';
+        }
+
+        // ─── RENDER INSTRUCTOR DATA ────────────────────────────────────
+        function renderToolsData() {
+            // 1. Fetch courses from localStorage
+            let myCourses = JSON.parse(localStorage.getItem('instructor_courses')) || [];
+
+            // 2. Calculate Stats
+            let totalStudents = 0;
+            let totalRevenue = 0;
+            let published = 0;
+            let pending = 0;
+
+            myCourses.forEach(c => {
+                // We assume 'enrollments' is a property we save. If not, default to 0
+                const count = c.enrollments || 0;
+                totalStudents += count;
+                totalRevenue += (count * (c.price || 0));
+                
+                if (c.status === 'published') published++;
+                else if (c.status === 'pending') pending++;
+            });
+
+            // 3. Update UI Stats
+            document.getElementById('totalRevenue').innerText = `₦${totalRevenue.toLocaleString()}`;
+            document.getElementById('totalStudents').innerText = totalStudents;
+            document.getElementById('publishedCourses').innerText = published;
+            document.getElementById('pendingApprovals').innerText = pending;
+
+            // 4. Render Table (With proper Empty State)
+            const tbody = document.getElementById('coursePerformanceBody');
+            if (myCourses.length === 0) {
+                tbody.innerHTML = `
+                    <tr>
+                        <td colspan="4" class="text-center py-5">
+                            <i class="fas fa-chart-line fa-3x text-muted mb-3" style="color: #ddd;"></i>
+                            <h5 class="text-muted">Nothing to show yet</h5>
+                            <p class="text-muted small">Create your first course or bundle to start tracking your success!</p>
+                        </td>
+                    </tr>
+                `;
+                return;
+            }
+
+            let html = '';
+            myCourses.forEach(c => {
+                const statusBadge = c.status === 'published' 
+                    ? '<span class="status-badge-published">Published</span>' 
+                    : '<span class="status-badge-pending">Pending</span>';
+                
+                html += `
+                    <tr>
+                        <td><strong>${c.title}</strong></td>
+                        <td class="text-center">${c.enrollments || 0}</td>
+                        <td class="text-center">₦${((c.enrollments || 0) * (c.price || 0)).toLocaleString()}</td>
+                        <td class="text-center">${statusBadge}</td>
+                    </tr>
+                `;
+            });
+            tbody.innerHTML = html;
+        }
+    </script>
+</body>
+</html>

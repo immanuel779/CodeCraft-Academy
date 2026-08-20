@@ -1,0 +1,524 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <title>CodeCraft - Dashboard</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <style>
+        :root { --brand-orange: #FF6B00; --brand-black: #1A1A1A; }
+        body { background: #f4f6f9; font-family: 'Segoe UI', sans-serif; min-height: 100vh; display: flex; flex-direction: column; }
+        
+        /* Navbar */
+        .navbar-custom { background: white; box-shadow: 0 2px 10px rgba(0,0,0,0.05); padding: 12px 0; }
+        .navbar-brand { font-weight: 700; color: var(--brand-black); font-size: 1.5rem; }
+        .navbar-brand i { color: var(--brand-orange); margin-right: 8px; }
+        .btn-logout-main { background: var(--brand-orange); color: white; border-radius: 8px; padding: 6px 20px; font-weight: 600; border: none; }
+        .btn-logout-main:hover { background: #e05a00; color: white; }
+        .navbar-toggler { border: none; font-size: 1.5rem; }
+        .navbar-toggler:focus { box-shadow: none; }
+
+        /* --- OFF-CANVAS SIDEBAR --- */
+        .offcanvas { max-width: 320px; border: none; }
+        .offcanvas-header { border-bottom: 1px solid #eee; padding: 15px 20px; }
+        .offcanvas-header .btn-close { font-size: 1.2rem; }
+        .offcanvas-body { padding: 0; display: flex; flex-direction: column; }
+        
+        .sidebar-search { padding: 15px 20px; border-bottom: 1px solid #eee; }
+        .sidebar-search .input-group { border-radius: 50px; overflow: hidden; border: 1px solid #ddd; }
+        .sidebar-search .form-control { border: none; background: #fafafa; padding: 10px 15px; }
+        .sidebar-search .input-group-text { background: #fafafa; border: none; color: #999; }
+
+        .sidebar-links { padding: 15px 0; flex-grow: 1; }
+        .sidebar-links a { display: block; padding: 12px 25px; color: #333; font-weight: 600; text-decoration: none; transition: all 0.2s; }
+        .sidebar-links a:hover { background: #f8f9fa; color: var(--brand-orange); padding-left: 30px; }
+        
+        .sidebar-logout-wrap { padding: 15px 20px; border-top: 1px solid #eee; }
+        .btn-sidebar-logout { background: var(--brand-orange); color: white; border: none; border-radius: 8px; width: 100%; padding: 12px; font-weight: 600; }
+        .btn-sidebar-logout:hover { background: #e05a00; color: white; }
+
+        /* Dashboard Content */
+        .dash-container { max-width: 800px; margin: 40px auto; padding: 0 20px; }
+        .welcome-section { display: flex; justify-content: space-between; align-items: flex-start; flex-wrap: wrap; margin-bottom: 30px; }
+        .welcome-text h2 { font-weight: 700; color: var(--brand-black); margin-bottom: 5px; }
+        .welcome-text p { color: #666; margin: 0; }
+        .btn-manage { border: 1px solid #ddd; background: white; border-radius: 8px; padding: 8px 16px; color: #333; font-weight: 500; transition: 0.3s; }
+        .btn-manage:hover { border-color: var(--brand-orange); color: var(--brand-orange); }
+        
+        .section-title { font-weight: 600; font-size: 1.2rem; margin-bottom: 15px; color: var(--brand-black); }
+        
+        .empty-card { background: white; border: 1px solid #e0e0e0; border-radius: 12px; padding: 40px; text-align: center; margin-bottom: 30px; transition: 0.3s; }
+        .empty-card:hover { box-shadow: 0 5px 20px rgba(0,0,0,0.05); transform: translateY(-2px); }
+        .empty-card p { color: #888; font-size: 1.05rem; margin: 0; }
+        .empty-card a { color: var(--brand-orange); text-decoration: none; font-weight: 500; }
+        .empty-card a:hover { text-decoration: underline; }
+
+        /* New Card for Purchased Courses */
+        .purchased-card { 
+            background: white; 
+            border-radius: 16px; 
+            padding: 20px; 
+            margin-bottom: 15px; 
+            border: 1px solid #e0e0e0; 
+            box-shadow: 0 4px 15px rgba(0,0,0,0.05); 
+            transition: 0.3s; 
+        }
+        .purchased-card:hover { transform: translateY(-3px); box-shadow: 0 6px 20px rgba(0,0,0,0.08); }
+        .purchased-card h5 { font-weight: 700; color: var(--brand-black); margin: 0; }
+        .purchased-card small { color: #888; }
+        .badge-access { background: #dcfce7; color: #16a34a; font-size: 0.85rem; padding: 6px 15px; border-radius: 50px; font-weight: 600; }
+
+        /* Footer */
+        footer { background: var(--brand-black); color: #ccc; padding: 40px 0 20px; margin-top: auto; }
+        footer h5 { color: white; font-weight: 600; }
+        footer ul { list-style: none; padding: 0; }
+        footer ul li a { color: #aaa; text-decoration: none; transition: 0.3s; }
+        footer ul li a:hover { color: var(--brand-orange); padding-left: 5px; }
+        .footer-bottom { border-top: 1px solid #333; padding-top: 20px; margin-top: 30px; text-align: center; }
+
+        /* --- ✅ FIXED: NOTIFICATION BELL (Now inside Navbar) --- */
+        #notificationBell {
+            position: relative;
+            padding: 8px;
+            cursor: pointer;
+            transition: transform 0.2s ease;
+        }
+        #notificationBell:hover { transform: scale(1.1); }
+        #notificationBell i { color: var(--brand-orange); font-size: 20px; }
+        
+        #notifBadge {
+            position: absolute;
+            top: -2px;
+            right: 0px;
+            background: #dc2626;
+            color: white;
+            font-size: 0.6rem;
+            padding: 2px 5px;
+            border-radius: 50%;
+            display: none;
+            font-weight: 600;
+        }
+
+        /* ✅ FIXED: NOTIFICATION DROPDOWN PANEL (Floats freely outside navbar) */
+        #notifPanel {
+            display: none;
+            position: fixed;
+            top: 80px;
+            right: 20px;
+            width: 320px;
+            background: white;
+            border-radius: 16px;
+            border: 1px solid #eee;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+            z-index: 9998;
+            max-height: 400px;
+            overflow-y: auto;
+            padding: 15px;
+        }
+        #notifPanel h6 { font-weight: 700; margin-bottom: 15px; color: var(--brand-black); }
+        .notif-item {
+            padding: 12px 0;
+            border-bottom: 1px solid #f5f5f5;
+            font-size: 0.9rem;
+        }
+        .notif-item:last-child { border-bottom: none; }
+        .notif-item strong { color: var(--brand-black); display: block; }
+        .notif-item small { color: #888; display: block; margin-top: 4px; }
+    </style>
+</head>
+<body>
+
+    <!-- NAVBAR -->
+    <nav class="navbar navbar-expand-lg navbar-custom">
+        <div class="container">
+            <a class="navbar-brand" href="#"><i class="fas fa-code"></i> CodeCraft</a>
+            <div class="d-flex align-items-center gap-3">
+                
+                <!-- ✅ NOTIFICATION BELL MOVED INSIDE NAVBAR -->
+                <div id="notificationBell" onclick="toggleNotifications()">
+                    <i class="fas fa-bell"></i>
+                    <span id="notifBadge">0</span>
+                </div>
+                <!-- ✅ END NOTIFICATION -->
+
+                <button class="btn btn-logout-main d-none d-md-block" onclick="logoutUser()">Logout</button>
+                <button class="navbar-toggler" type="button" data-bs-toggle="offcanvas" data-bs-target="#sidebarMenu">
+                    <span class="navbar-toggler-icon"></span>
+                </button>
+            </div>
+        </div>
+    </nav>
+
+    <!-- SIDEBAR -->
+    <div class="offcanvas offcanvas-end" tabindex="-1" id="sidebarMenu">
+        <div class="offcanvas-header">
+            <h5 class="offcanvas-title fw-bold"><i class="fas fa-code text-warning"></i> CodeCraft</h5>
+            <button type="button" class="btn-close" data-bs-dismiss="offcanvas"></button>
+        </div>
+        <div class="offcanvas-body">
+            <div class="sidebar-search">
+                <div class="input-group">
+                    <span class="input-group-text"><i class="fas fa-search"></i></span>
+                    <input type="text" class="form-control" placeholder="Search courses...">
+                </div>
+            </div>
+            <div class="sidebar-links">
+                <a href="courses.html">Courses</a>
+                <a href="create-bundle.html">Bundles</a>
+                <a href="dashboard.html">Dashboard</a>
+                <a href="instructor-tools.html">InstructorTools</a>
+                <a href="support.html">Support</a>
+                <a href="mock-exams.html">Mock Exams</a>
+                <a href="affiliate.html">Affiliate Program</a>
+                <a href="faq.html">FAQ</a>
+                <a href="profile.html">Profile</a>
+            </div>
+            <div class="sidebar-logout-wrap">
+                <button class="btn-sidebar-logout" onclick="logoutUser()">Logout</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- MAIN DASHBOARD CONTENT -->
+    <div class="dash-container">
+        <div class="welcome-section">
+            <div class="welcome-text">
+                <h2 id="userGreeting">Welcome back, User</h2>
+            </div>
+            <button class="btn-manage" onclick="window.location.href='manage-courses.html'">Manage Courses</button>
+        </div>
+
+        <!-- My Courses Section -->
+        <div class="section-title">My Courses</div>
+        <div id="myPurchasedCourses">
+            <!-- Content injected via JavaScript -->
+        </div>
+
+        <!-- My Certificates -->
+        <div class="section-title">My Certificates</div>
+        <div class="empty-card">
+            <p>Complete a course to earn your certificate.</p>
+        </div>
+    </div>
+
+    <!-- ✅ NOTIFICATION DROPDOWN PANEL (Floating outside) -->
+    <div id="notifPanel">
+        <h6><i class="fas fa-bell text-warning me-2"></i> Notifications</h6>
+        <div id="notifList">
+            <p class="text-muted text-center small" style="padding: 15px 0;">No new notifications.</p>
+        </div>
+    </div>
+
+    <!-- FLOATING BUG ICON -->
+    <div id="reportBugBtn" style="
+        position: fixed; 
+        bottom: 25px; 
+        left: 25px; 
+        width: 55px; 
+        height: 55px; 
+        background: rgba(255, 255, 255, 0.9); 
+        backdrop-filter: blur(8px);
+        border-radius: 50%; 
+        display: flex; 
+        align-items: center; 
+        justify-content: center; 
+        box-shadow: 0 4px 15px rgba(0,0,0,0.1); 
+        cursor: pointer; 
+        z-index: 9999;
+        transition: all 0.3s ease;
+        border: 1px solid rgba(255,107,0,0.2);
+    " onclick="openReportPage()">
+        <i class="fas fa-bug" style="color: #FF6B00; font-size: 22px;"></i>
+    </div>
+
+    <!-- FOOTER -->
+   <footer>
+    <div class="container">
+        <div class="row g-4">
+            <div class="col-md-3">
+                <h5><i class="fas fa-code text-warning"></i> CodeCraft</h5>
+                <p style="font-size: 0.9rem;">Empowering developers and instructors.</p>
+                <div class="social-icons mt-3">
+                    <a href="https://www.facebook.com/profile.php?id=100084730695859" target="_blank" rel="noopener noreferrer"><i class="fab fa-facebook-f"></i></a>
+                    <a href="https://www.tiktok.com/@codecraft995" target="_blank" rel="noopener noreferrer"><i class="fab fa-tiktok"></i></a>
+                    <a href="https://www.instagram.com/codecraft331/" target="_blank" rel="noopener noreferrer"><i class="fab fa-instagram"></i></a>
+                    <a href="https://github.com/immanuel779" target="_blank" rel="noopener noreferrer"><i class="fab fa-github"></i></a>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <h5>Products</h5>
+                <ul>
+                    <li><a href="courses.html">Courses</a></li>
+                    <li><a href="create-bundle.html">Bundles</a></li>
+                    <li><a href="mock-exams.html">Mock Exams</a></li>
+                    <li><a href="instructor-tools.html">Instructor Tools</a></li>
+                </ul>
+            </div>
+            <div class="col-md-3">
+                <h5>Support</h5>
+                <ul>
+                    <li><a href="support.html">Help Center</a></li>
+                    <li><a href="contact.html">Contact Us</a></li>
+                    <li><a href="https://whatsapp.com/channel/0029VbAYte94o7qG2Dfrlt3D" target="_blank">Community</a></li>
+                    <li><a href="faq.html">FAQs</a></li>
+                </ul>
+            </div>
+            <div class="col-md-3">
+                <h5>Legal</h5>
+                <ul>
+                    <li><a href="legal.html">Privacy Policy</a></li>
+                    <li><a href="legal.html">Terms of Service</a></li>
+                    <li><a href="legal.html">Cookie Policy</a></li>
+                </ul>
+            </div>
+        </div>
+        <div class="footer-bottom">
+            &copy; 2026 CodeCraft Tech Company. All rights reserved.
+        </div>
+    </div>
+</footer>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    
+    <!-- PWA INSTALL SCRIPT -->
+    <script>
+        let deferredPrompt;
+
+        window.addEventListener('beforeinstallprompt', (e) => {
+            e.preventDefault();
+            deferredPrompt = e;
+            showInstallPromotion();
+        });
+
+        function showInstallPromotion() {
+            const installBtn = document.createElement('button');
+            installBtn.innerText = 'Install CodeCraft App';
+            installBtn.style.position = 'fixed';
+            installBtn.style.bottom = '80px';
+            installBtn.style.left = '50%';
+            installBtn.style.transform = 'translateX(-50%)';
+            installBtn.style.backgroundColor = '#FF6B00';
+            installBtn.style.color = 'white';
+            installBtn.style.border = 'none';
+            installBtn.style.borderRadius = '50px';
+            installBtn.style.padding = '15px 30px';
+            installBtn.style.fontWeight = 'bold';
+            installBtn.style.fontSize = '18px';
+            installBtn.style.boxShadow = '0 4px 15px rgba(255, 107, 0, 0.4)';
+            installBtn.style.zIndex = '9998';
+            installBtn.style.cursor = 'pointer';
+
+            installBtn.addEventListener('click', async () => {
+                if (deferredPrompt) {
+                    deferredPrompt.prompt();
+                    const { outcome } = await deferredPrompt.userChoice;
+                    if (outcome === 'accepted') {
+                        installBtn.style.display = 'none';
+                    }
+                    deferredPrompt = null;
+                }
+            });
+
+            document.body.appendChild(installBtn);
+        }
+
+        window.addEventListener('appinstalled', () => {
+            const btn = document.querySelector('button');
+            if(btn) btn.style.display = 'none';
+        });
+    </script>
+
+<!-- DASHBOARD LOGIC (UPDATED FOR DUAL AUTH) -->
+<script>
+    // ─── CONFIGURATION ──────────────────────────────────────────────
+    // ✅ UPDATED TO YOUR LIVE RENDER URL
+    const API_URL = "https://codecraft-tech-academy-backend.onrender.com"; 
+
+    // 1. PROTECT PAGE (Backend JWT OR Firebase Name)
+    document.addEventListener('DOMContentLoaded', async function() {
+        const token = localStorage.getItem('authToken');
+        const firstName = localStorage.getItem('codecraft_firstName');
+
+        // ✅ CASE 1: Backend Login (Has JWT Token)
+        if (token) {
+            try {
+                const res = await fetch(`${API_URL}/api/me`, {
+                    headers: { 'Authorization': `Bearer ${token}` }
+                });
+                if (res.ok) {
+                    const user = await res.json();
+                    document.getElementById('userGreeting').innerText = `Welcome back, ${user.firstName}`;
+                    loadPurchasedCourses(token); // Load real DB courses
+                    return;
+                } else {
+                    // Token invalid, fall through to Firebase check
+                    localStorage.removeItem('authToken');
+                }
+            } catch (err) {
+                console.warn("Backend not reachable, falling back to Firebase mode.");
+            }
+        }
+
+        // ✅ CASE 2: Firebase Login (No Token, but name exists)
+        if (firstName) {
+            document.getElementById('userGreeting').innerText = `Welcome back, ${firstName}`;
+            loadPurchasedCourses(null); // Load from localStorage
+            return;
+        }
+
+        // ❌ CASE 3: Not Logged In
+        window.location.href = 'login.html';
+    });
+
+    // ─── LOGOUT ──────────────────────────────────────────────────────
+    function logoutUser() {
+        // Clear ALL user data
+        localStorage.removeItem('authToken');
+        localStorage.removeItem('codecraft_firstName');
+        localStorage.removeItem('userRole');
+        localStorage.removeItem('my_purchased_courses');
+        window.location.href = 'login.html';
+    }
+    
+    function openReportPage() {
+        window.location.href = 'support.html';
+    }
+
+    // ─── LOAD PURCHASED COURSES ────────────────────────────────────
+    function loadPurchasedCourses(token) {
+        const container = document.getElementById('myPurchasedCourses');
+
+        if (token) {
+            // 🔹 Backend mode: Fetch from API
+            fetch(`${API_URL}/api/my-courses`, {
+                headers: { 'Authorization': `Bearer ${token}` }
+            })
+            .then(res => res.json())
+            .then(enrollments => {
+                // Convert to the format your dashboard expects
+                const courses = enrollments.map(e => ({
+                    id: e.courseId?._id || e.courseId,
+                    title: e.courseId?.title || "Your Purchased Course",
+                    price: e.amountPaid ? `₦${e.amountPaid}` : "₦0",
+                    date: new Date(e.enrolledAt).toLocaleDateString(),
+                    method: e.paymentMethod || "Paystack",
+                    telegramLink: e.telegramLink || "https://t.me/+XNTisaHc7KFhNDNk"
+                }));
+                renderCourses(courses);
+            })
+            .catch(err => {
+                console.error("Error fetching backend courses:", err);
+                // Fallback to localStorage
+                renderFallbackCourses();
+            });
+        } else {
+            // 🔹 Firebase mode: Load from localStorage
+            renderFallbackCourses();
+        }
+    }
+
+    function renderFallbackCourses() {
+        const myCourses = JSON.parse(localStorage.getItem('my_purchased_courses')) || [];
+        renderCourses(myCourses);
+    }
+
+    function renderCourses(courses) {
+        const container = document.getElementById('myPurchasedCourses');
+        if (courses.length === 0) {
+            container.innerHTML = `
+                <div class="empty-card">
+                    <p>You haven't enrolled in any courses yet. <a href="courses.html">Browse courses &rarr;</a></p>
+                </div>
+            `;
+            return;
+        }
+
+        let html = '';
+        courses.forEach((course) => {
+            const link = course.telegramLink || "https://t.me/+XNTisaHc7KFhNDNk";
+            html += `
+                <div class="purchased-card">
+                    <div class="d-flex justify-content-between align-items-start flex-wrap">
+                        <div>
+                            <h5>${course.title}</h5>
+                            <small>Purchased on ${course.date} via ${course.method}</small>
+                            <span class="text-danger" style="display:block; font-size:0.8rem; margin-top:4px;">🔒 Do not share this link. It is for your eyes only.</span>
+                        </div>
+                        <div>
+                            <span class="badge-access">✅ Access Granted</span>
+                        </div>
+                    </div>
+                    <div class="mt-2">
+                        <a href="${link}" target="_blank" class="btn btn-sm btn-outline-brand" style="color: var(--brand-orange); border: 1px solid var(--brand-orange); border-radius: 50px; padding: 5px 15px; text-decoration: none;">
+                            <i class="fab fa-telegram-plane me-1"></i> Join Telegram Group
+                        </a>
+                    </div>
+                </div>
+            `;
+        });
+        container.innerHTML = html;
+    }
+
+    // ─── ✅ FIXED: NOTIFICATION LOGIC ──────────────────────────────────
+    function toggleNotifications() {
+        const panel = document.getElementById('notifPanel');
+        if (panel.style.display === 'none' || panel.style.display === '') {
+            panel.style.display = 'block';
+            // Clear badge count when they open it
+            document.getElementById('notifBadge').style.display = 'none';
+            document.getElementById('notifBadge').innerText = '0';
+        } else {
+            panel.style.display = 'none';
+        }
+    }
+
+    // Helper to trigger a notification (For testing/Backend integration)
+    function triggerNotification(title, message) {
+        const list = document.getElementById('notifList');
+        const badge = document.getElementById('notifBadge');
+        
+        // Remove "No new notifications" placeholder
+        if (list.innerHTML.includes('No new notifications')) {
+            list.innerHTML = '';
+        }
+
+        // Prepend the new notification
+        const newNotif = document.createElement('div');
+        newNotif.className = 'notif-item';
+        newNotif.innerHTML = `<strong>${title}</strong><small>${message}</small>`;
+        list.prepend(newNotif);
+
+        // Update the red badge
+        let currentCount = parseInt(badge.innerText) || 0;
+        badge.innerText = currentCount + 1;
+        badge.style.display = 'block';
+    }
+
+    // ─── DEBUG FUNCTION ────────────────────────────────────────────
+    function debugLocalStorage() {
+        console.log("=== DEBUG: localStorage contents ===");
+        console.log("authToken:", localStorage.getItem('authToken'));
+        console.log("codecraft_firstName:", localStorage.getItem('codecraft_firstName'));
+        console.log("userRole:", localStorage.getItem('userRole'));
+        console.log("my_purchased_courses:", localStorage.getItem('my_purchased_courses'));
+        console.log("========================================");
+    }
+    
+    // 🟢 RENDER KEEP-AWAKE SCRIPT
+    const wakeUpBackend = () => {
+        fetch('https://codecraft-tech-academy-backend.onrender.com/api/me')
+            .then(res => {
+                if (res.ok) console.log("✅ Backend kept awake successfully.");
+            })
+            .catch(() => {
+                console.log("⏳ Render backend is currently waking up...");
+            });
+    };
+    wakeUpBackend();
+    setInterval(wakeUpBackend, 600000);
+</script>
+</body>
+</html>

@@ -1,0 +1,278 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CodeCraft - FAQs</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root { --brand-orange: #FF6B00; --brand-black: #1A1A1A; }
+        body { background: #f4f6f9; font-family: 'Segoe UI', sans-serif; min-height: 100vh; display: flex; flex-direction: column; }
+        
+        /* Navbar & Sidebar */
+        .navbar-custom { background: white; box-shadow: 0 2px 10px rgba(0,0,0,0.05); padding: 12px 0; }
+        .navbar-brand { font-weight: 700; color: var(--brand-black); font-size: 1.5rem; }
+        .navbar-brand i { color: var(--brand-orange); margin-right: 8px; }
+        .btn-logout-main { background: var(--brand-orange); color: white; border-radius: 8px; padding: 6px 20px; font-weight: 600; border: none; }
+        .navbar-toggler { border: none; font-size: 1.5rem; }
+        .offcanvas { max-width: 320px; border: none; }
+        .offcanvas-header { border-bottom: 1px solid #eee; padding: 15px 20px; }
+        .sidebar-search { padding: 15px 20px; border-bottom: 1px solid #eee; }
+        .sidebar-links { padding: 15px 0; flex-grow: 1; }
+        .sidebar-links a { display: block; padding: 12px 25px; color: #333; font-weight: 600; text-decoration: none; }
+        .sidebar-links a:hover { background: #f8f9fa; color: var(--brand-orange); padding-left: 30px; }
+        .sidebar-logout-wrap { padding: 15px 20px; border-top: 1px solid #eee; }
+        .btn-sidebar-logout { background: var(--brand-orange); color: white; border: none; border-radius: 8px; width: 100%; padding: 12px; font-weight: 600; }
+        
+        /* FAQ Page Styling */
+        .faq-container { max-width: 800px; margin: 40px auto; padding: 0 20px; } /* ✅ FIXED TYPO HERE */
+        .faq-title { font-weight: 800; font-size: 2.2rem; color: var(--brand-black); margin-bottom: 10px; }
+        .faq-sub { color: #888; font-size: 1.1rem; margin-bottom: 30px; }
+
+        .faq-accordion .accordion-item { 
+            border: 1px solid #eee; 
+            border-radius: 12px !important; 
+            margin-bottom: 15px; 
+            overflow: hidden; 
+            background: white; 
+            box-shadow: 0 2px 5px rgba(0,0,0,0.02); 
+        }
+        .faq-accordion .accordion-header button { 
+            font-weight: 700; 
+            color: var(--brand-black); 
+            padding: 18px 20px; 
+            background: white; 
+            box-shadow: none !important; 
+            font-size: 1.05rem; 
+        }
+        .faq-accordion .accordion-header button:not(.collapsed) { 
+            color: var(--brand-orange); 
+        }
+        .faq-accordion .accordion-body { 
+            padding: 20px; 
+            color: #555; 
+            line-height: 1.6; 
+        }
+
+        footer { background: var(--brand-black); color: #ccc; padding: 40px 0 20px; margin-top: auto; }
+        footer h5 { color: white; font-weight: 600; }
+        footer ul { list-style: none; padding: 0; }
+        footer ul li a { color: #aaa; text-decoration: none; transition: 0.3s; }
+        footer ul li a:hover { color: var(--brand-orange); padding-left: 5px; }
+        .footer-bottom { border-top: 1px solid #333; padding-top: 20px; margin-top: 30px; text-align: center; }
+    </style>
+</head>
+<body>
+    <nav class="navbar navbar-expand-lg navbar-custom">
+        <div class="container">
+            <a class="navbar-brand" href="dashboard.html"><i class="fas fa-code"></i> CodeCraft</a>
+            <div class="d-flex align-items-center gap-3">
+                <button class="btn btn-logout-main d-none d-md-block" onclick="logoutUser()">Logout</button>
+                <button class="navbar-toggler" type="button" data-bs-toggle="offcanvas" data-bs-target="#sidebarMenu">
+                    <span class="navbar-toggler-icon"></span>
+                </button>
+            </div>
+        </div>
+    </nav>
+
+    <div class="offcanvas offcanvas-end" tabindex="-1" id="sidebarMenu">
+        <div class="offcanvas-header"><h5 class="offcanvas-title fw-bold"><i class="fas fa-code text-warning"></i> CodeCraft</h5><button type="button" class="btn-close" data-bs-dismiss="offcanvas"></button></div>
+        <div class="offcanvas-body">
+            <div class="sidebar-search"><div class="input-group"><span class="input-group-text"><i class="fas fa-search"></i></span><input type="text" class="form-control" placeholder="Search courses..."></div></div>
+            <div class="sidebar-links">
+                <a href="courses.html">Courses</a>
+                <a href="bundles.html">Bundles</a>
+                <a href="dashboard.html">Dashboard</a>
+                <a href="manage-courses.html">Manage Courses</a>
+                <a href="mock-exams.html">Mock Exams</a>
+                <a href="instructor-tools.html">Instructor Tools</a>
+                <a href="affiliate.html">Affiliate Program</a>
+                <a href="faq.html">FAQs</a>
+                 <a href="profile.html">Profile</a>
+                <a href="support.html">Support</a>
+            </div>
+            <div class="sidebar-logout-wrap"><button class="btn-sidebar-logout" onclick="logoutUser()">Logout</button></div>
+        </div>
+    </div>
+
+    <!-- FAQ CONTENT -->
+    <div class="faq-container">
+        <h1 class="faq-title">Frequently Asked Questions</h1>
+        <p class="faq-sub">Find quick answers to the most common questions about CodeCraft Academy.</p>
+
+        <div class="accordion faq-accordion" id="faqAccordion">
+            
+            <!-- Q1 -->
+            <div class="accordion-item">
+                <h2 class="accordion-header" id="headingOne">
+                    <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#collapseOne" aria-expanded="true" aria-controls="collapseOne">
+                        How do I reset my password?
+                    </button>
+                </h2>
+                <div id="collapseOne" class="accordion-collapse collapse show" aria-labelledby="headingOne" data-bs-parent="#faqAccordion">
+                    <div class="accordion-body">
+                        On the Login page, click the <strong>"Forgot password?"</strong> link. Enter your registered email address, and we will send you a password reset link directly to your inbox. If you don't see the email, please check your spam folder.
+                    </div>
+                </div>
+            </div>
+
+            <!-- Q2 -->
+            <div class="accordion-item">
+                <h2 class="accordion-header" id="headingTwo">
+                    <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseTwo" aria-expanded="false" aria-controls="collapseTwo">
+                        How do I access my purchased courses?
+                    </button>
+                </h2>
+                <div id="collapseTwo" class="accordion-collapse collapse" aria-labelledby="headingTwo" data-bs-parent="#faqAccordion">
+                    <div class="accordion-body">
+                        After a successful payment, you will be automatically redirected to your Dashboard. Navigate to the <strong>"My Courses"</strong> section, click on the course you purchased, and click the <strong>"Join Telegram Group"</strong> button to access the course materials and community.
+                    </div>
+                </div>
+            </div>
+
+            <!-- Q3 -->
+            <div class="accordion-item">
+                <h2 class="accordion-header" id="headingThree">
+                    <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseThree" aria-expanded="false" aria-controls="collapseThree">
+                        What is your refund policy?
+                    </button>
+                </h2>
+                <div id="collapseThree" class="accordion-collapse collapse" aria-labelledby="headingThree" data-bs-parent="#faqAccordion">
+                    <div class="accordion-body">
+                        Due to the digital nature of our courses, all purchases are final. However, if you experience severe technical issues that prevent you from accessing the course, please contact our support team within 7 days of purchase, and we will review your case.
+                    </div>
+                </div>
+            </div>
+
+            <!-- Q4 -->
+            <div class="accordion-item">
+                <h2 class="accordion-header" id="headingFour">
+                    <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseFour" aria-expanded="false" aria-controls="collapseFour">
+                        How do I become an Instructor on CodeCraft?
+                    </button>
+                </h2>
+                <div id="collapseFour" class="accordion-collapse collapse" aria-labelledby="headingFour" data-bs-parent="#faqAccordion">
+                    <div class="accordion-body">
+                        During the Sign Up process, select <strong>"Instructor — creating courses & content"</strong> as your role. Once logged in, go to your Dashboard and click <strong>"Manage Courses"</strong>. From there, you can create new courses and bundles for approval by the Admin.
+                    </div>
+                </div>
+            </div>
+
+            <!-- ✅ UPDATED AFFILIATE Q5 -->
+            <div class="accordion-item">
+                <h2 class="accordion-header" id="headingFive">
+                    <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseFive" aria-expanded="false" aria-controls="collapseFive">
+                        How does the Affiliate/Referral program work?
+                    </button>
+                </h2>
+                <div id="collapseFive" class="accordion-collapse collapse" aria-labelledby="headingFive" data-bs-parent="#faqAccordion">
+                    <div class="accordion-body">
+                        Every user gets a unique referral link. When you share this link with a friend and they sign up and make their first purchase, you earn a cash commission. You can view your total earnings and stats on the <strong>"Affiliate Program"</strong> page.
+                        <br><br>
+                        Once you reach a minimum balance of <strong>₦5,000</strong>, you can request a real cash payout directly to your bank account by filling out the payout form on the same Affiliate page!
+                    </div>
+                </div>
+            </div>
+
+            <!-- Q6 -->
+            <div class="accordion-item">
+                <h2 class="accordion-header" id="headingSix">
+                    <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseSix" aria-expanded="false" aria-controls="collapseSix">
+                        How do I contact customer support?
+                    </button>
+                </h2>
+                <div id="collapseSix" class="accordion-collapse collapse" aria-labelledby="headingSix" data-bs-parent="#faqAccordion">
+                    <div class="accordion-body">
+                        You can reach us via our <strong>"Contact Us"</strong> page in the menu. If you need immediate assistance with a technical or payment issue, click the <strong>floating bug icon</strong> at the bottom-left corner of your screen to open the Support Ticket page.
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+    <!-- FLOATING BUG ICON -->
+    <div id="reportBugBtn" style="
+        position: fixed; 
+        bottom: 25px; 
+        left: 25px; 
+        width: 55px; 
+        height: 55px; 
+        background: rgba(255, 255, 255, 0.9); 
+        backdrop-filter: blur(8px);
+        border-radius: 50%; 
+        display: flex; 
+        align-items: center; 
+        justify-content: center; 
+        box-shadow: 0 4px 15px rgba(0,0,0,0.1); 
+        cursor: pointer; 
+        z-index: 9999;
+        transition: all 0.3s ease;
+        border: 1px solid rgba(255,107,0,0.2);
+    " onclick="openReportPage()">
+        <i class="fas fa-bug" style="color: #FF6B00; font-size: 22px;"></i>
+    </div>
+
+    <footer>
+        <div class="container">
+            <div class="row g-4">
+                <div class="col-md-3">
+                    <h5><i class="fas fa-code text-warning"></i> CodeCraft</h5>
+                    <p style="font-size: 0.9rem;">Empowering developers and instructors.</p>
+                    <div class="social-icons mt-3">
+                        <!-- ✅ FIXED: Added target="_blank" and cleaned up the URLs -->
+                        <a href="https://www.facebook.com/profile.php?id=100084730695859" target="_blank" rel="noopener noreferrer"><i class="fab fa-facebook-f"></i></a>
+                        <a href="https://www.tiktok.com/@codecraft995" target="_blank" rel="noopener noreferrer"><i class="fab fa-tiktok"></i></a>
+                        <a href="https://www.instagram.com/codecraft331/" target="_blank" rel="noopener noreferrer"><i class="fab fa-instagram"></i></a>
+                        <a href="https://github.com/immanuel779" target="_blank" rel="noopener noreferrer"><i class="fab fa-github"></i></a>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <h5>Products</h5>
+                    <ul>
+                        <li><a href="courses.html">Courses</a></li>
+                        <li><a href="create-bundle.html">Bundles</a></li>
+                        <li><a href="mock-exams.html">Mock Exams</a></li>
+                        <li><a href="instructor-tools.html">Instructor Tools</a></li>
+                    </ul>
+                </div>
+                <div class="col-md-3">
+                    <h5>Support</h5>
+                    <ul>
+                        <li><a href="support.html">Help Center</a></li>
+                        <li><a href="contact.html">Contact Us</a></li>
+                        <li><a href="https://whatsapp.com/channel/0029VbAYte94o7qG2Dfrlt3D" target="_blank">Community</a></li>
+                        <li><a href="faq.html">FAQs</a></li>
+                    </ul>
+                </div>
+                <div class="col-md-3">
+                    <h5>Legal</h5>
+                    <ul>
+                        <li><a href="legal.html">Privacy Policy</a></li>
+                        <li><a href="legal.html">Terms of Service</a></li>
+                        <li><a href="legal.html">Cookie Policy</a></li>
+                    </ul>
+                </div>
+            </div>
+            <div class="footer-bottom">
+                &copy; 2026 CodeCraft Tech Company. All rights reserved.
+            </div>
+        </div>
+    </footer>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const firstName = localStorage.getItem('codecraft_firstName');
+            if (!firstName) { window.location.href = 'login.html'; }
+        });
+
+        function logoutUser() { localStorage.clear(); window.location.href = 'login.html'; }
+        
+        function openReportPage() {
+            window.location.href = 'support.html';
+        }
+    </script>
+</body>
+</html>

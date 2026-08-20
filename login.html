@@ -1,0 +1,723 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CodeCraft Tech - Login & Signup</title>
+    <!-- Google Fonts for Premium Typography -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,400;14..32,500;14..32,600;14..32,700&display=swap" rel="stylesheet">
+    <!-- Bootstrap 5 -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- FontAwesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --brand-orange: #FF6B00;
+            --brand-orange-dark: #e05a00;
+            --brand-orange-light: rgba(255, 107, 0, 0.1);
+            --brand-black: #1A1A1A;
+            --brand-gray: #f8f9fa;
+            --text-muted: #6c757d;
+        }
+
+        * {
+            font-family: 'Inter', sans-serif;
+        }
+
+        body {
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            background: #f4f6f9;
+            background: radial-gradient(circle at 10% 20%, rgba(255, 107, 0, 0.03) 0%, transparent 50%),
+                        radial-gradient(circle at 90% 80%, rgba(255, 107, 0, 0.03) 0%, transparent 50%);
+            background-color: #f4f6f9;
+            position: relative;
+        }
+
+        .navbar-custom {
+            background: rgba(255, 255, 255, 0.85);
+            backdrop-filter: blur(8px);
+            box-shadow: 0 1px 3px rgba(0,0,0,0.04);
+            padding: 12px 0;
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+        }
+        .navbar-brand {
+            font-weight: 700;
+            color: var(--brand-black);
+            font-size: 1.5rem;
+            letter-spacing: -0.5px;
+        }
+        .navbar-brand i {
+            color: var(--brand-orange);
+            margin-right: 8px;
+        }
+
+        .auth-wrapper {
+            flex: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 40px 20px;
+        }
+
+        /* --- Premium Card Design --- */
+        .auth-card {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(12px);
+            border-radius: 32px;
+            padding: 48px 40px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.06),
+                        0 0 0 1px rgba(0, 0, 0, 0.02);
+            max-width: 460px;
+            width: 100%;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+        .auth-card::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: radial-gradient(circle at 30% 20%, rgba(255, 107, 0, 0.03) 0%, transparent 60%);
+            pointer-events: none;
+            z-index: 0;
+        }
+        .auth-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 30px 80px rgba(0, 0, 0, 0.08),
+                        0 0 0 1px rgba(0, 0, 0, 0.02);
+        }
+
+        .auth-card > * {
+            position: relative;
+            z-index: 1;
+        }
+
+        .auth-card .logo-wrapper {
+            display: flex;
+            justify-content: center;
+            margin-bottom: 24px;
+        }
+        .auth-card .logo-icon-box {
+            width: 72px;
+            height: 72px;
+            background: linear-gradient(135deg, var(--brand-orange), var(--brand-orange-dark));
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 2rem;
+            box-shadow: 0 8px 24px rgba(255, 107, 0, 0.25);
+            transition: transform 0.3s ease;
+        }
+        .auth-card .logo-icon-box:hover {
+            transform: scale(1.02);
+        }
+
+        .auth-card h2 {
+            font-weight: 700;
+            color: var(--brand-black);
+            margin-bottom: 28px;
+            text-align: center;
+            font-size: 1.75rem;
+            letter-spacing: -0.5px;
+        }
+
+        /* --- Floating Label Inputs --- */
+        .floating-group {
+            position: relative;
+            margin-bottom: 20px;
+        }
+        .floating-group .form-control {
+            height: 56px;
+            padding: 16px 16px 8px 48px;
+            border-radius: 16px;
+            border: 1px solid #e9ecef;
+            background: #fcfcfc;
+            font-size: 0.95rem;
+            transition: all 0.3s ease;
+            color: var(--brand-black);
+        }
+        .floating-group .form-control:focus {
+            border-color: var(--brand-orange);
+            background: white;
+            box-shadow: 0 0 0 4px rgba(255, 107, 0, 0.08);
+        }
+        .floating-group .form-label {
+            position: absolute;
+            left: 48px;
+            top: 50%;
+            transform: translateY(-50%);
+            font-size: 0.95rem;
+            color: var(--text-muted);
+            transition: all 0.2s ease;
+            pointer-events: none;
+            background: transparent;
+            padding: 0 4px;
+            margin: 0;
+            font-weight: 400;
+        }
+        .floating-group .form-control:focus ~ .form-label,
+        .floating-group .form-control:not(:placeholder-shown) ~ .form-label {
+            top: 10px;
+            font-size: 0.75rem;
+            color: var(--brand-orange);
+            font-weight: 500;
+        }
+        .floating-group .input-icon {
+            position: absolute;
+            left: 16px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--text-muted);
+            font-size: 1rem;
+            transition: color 0.3s ease;
+            pointer-events: none;
+        }
+        .floating-group .form-control:focus ~ .input-icon {
+            color: var(--brand-orange);
+        }
+
+        /* --- Premium Button --- */
+        .btn-brand-premium {
+            background: linear-gradient(135deg, var(--brand-orange), var(--brand-orange-dark));
+            color: white;
+            border: none;
+            border-radius: 16px;
+            padding: 16px;
+            font-weight: 600;
+            font-size: 1rem;
+            width: 100%;
+            margin-top: 8px;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 16px rgba(255, 107, 0, 0.25);
+            position: relative;
+            overflow: hidden;
+            letter-spacing: 0.3px;
+        }
+        .btn-brand-premium::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(135deg, rgba(255,255,255,0.1) 0%, transparent 50%);
+            pointer-events: none;
+        }
+        .btn-brand-premium:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 30px rgba(255, 107, 0, 0.35);
+            color: white;
+        }
+        .btn-brand-premium:active {
+            transform: scale(0.98);
+        }
+
+        /* --- Social Section --- */
+        .social-divider {
+            display: flex;
+            align-items: center;
+            text-align: center;
+            margin: 28px 0 20px;
+            color: var(--text-muted);
+            font-size: 0.85rem;
+        }
+        .social-divider::before,
+        .social-divider::after {
+            content: '';
+            flex: 1;
+            border-bottom: 1px solid #e9ecef;
+        }
+        .social-divider span {
+            padding: 0 16px;
+            font-weight: 500;
+        }
+
+        .social-btn-group {
+            display: flex;
+            justify-content: center;
+            gap: 12px;
+        }
+        .social-btn {
+            width: 48px;
+            height: 48px;
+            border-radius: 50%;
+            background: white;
+            border: 1px solid #e9ecef;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.1rem;
+            transition: all 0.25s ease;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.02);
+            cursor: pointer;
+            text-decoration: none;
+            color: var(--brand-black);
+        }
+        .social-btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 20px rgba(0,0,0,0.06);
+            border-color: transparent;
+        }
+        .social-btn.google:hover {
+            background: #f4f4f4;
+            color: #DB4437;
+        }
+
+        .footer-text {
+            text-align: center;
+            margin-top: 24px;
+            color: var(--text-muted);
+            font-size: 0.9rem;
+        }
+        .footer-text a {
+            color: var(--brand-orange);
+            text-decoration: none;
+            font-weight: 600;
+        }
+        .footer-text a:hover {
+            text-decoration: underline;
+        }
+
+        .form-section {
+            display: none;
+            animation: fadeSlide 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+        .form-section.active {
+            display: block;
+        }
+        @keyframes fadeSlide {
+            from {
+                opacity: 0;
+                transform: translateY(12px) scale(0.98);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0) scale(1);
+            }
+        }
+
+        /* --- Forgot Password Link --- */
+        .forgot-link {
+            color: var(--text-muted);
+            text-decoration: none;
+            font-size: 0.85rem;
+            font-weight: 500;
+            transition: color 0.2s;
+            display: inline-block;
+            margin-top: 4px;
+        }
+        .forgot-link:hover {
+            color: var(--brand-orange);
+        }
+
+        /* --- Select Styling --- */
+        .floating-group select.form-control {
+            padding-left: 16px;
+            appearance: none;
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%236c757d' stroke-width='1.5' fill='none' stroke-linecap='round'/%3E%3C/svg%3E");
+            background-repeat: no-repeat;
+            background-position: right 16px center;
+        }
+        .floating-group select.form-control:focus {
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%23FF6B00' stroke-width='1.5' fill='none' stroke-linecap='round'/%3E%3C/svg%3E");
+        }
+        .floating-group select.form-control ~ .form-label {
+            display: none;
+        }
+
+        /* --- Modal --- */
+        .modal-content {
+            border-radius: 24px;
+            border: none;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.1);
+        }
+        .modal-header {
+            border-bottom: 1px solid #f0f0f0;
+            padding: 20px 24px;
+        }
+        .modal-body {
+            padding: 24px;
+        }
+
+        footer {
+            background: var(--brand-black);
+            color: #aaa;
+            padding: 40px 0 20px;
+            margin-top: auto;
+        }
+        footer h5 {
+            color: white;
+            font-weight: 600;
+            margin-bottom: 16px;
+            font-size: 1rem;
+        }
+        footer ul {
+            list-style: none;
+            padding: 0;
+        }
+        footer ul li {
+            margin-bottom: 8px;
+        }
+        footer ul li a {
+            color: #aaa;
+            text-decoration: none;
+            transition: 0.3s;
+            font-size: 0.9rem;
+        }
+        footer ul li a:hover {
+            color: var(--brand-orange);
+            padding-left: 4px;
+        }
+        .footer-bottom {
+            border-top: 1px solid #333;
+            padding-top: 20px;
+            margin-top: 20px;
+            text-align: center;
+            font-size: 0.85rem;
+        }
+
+        @media (max-width: 576px) {
+            .navbar-custom .d-flex { gap: 0.75rem !important; }
+            .auth-card { padding: 35px 25px; }
+            .footer-text { margin-top: 30px; }
+            .social-divider { margin: 30px 0 25px; }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- NAVBAR -->
+    <nav class="navbar navbar-expand-lg navbar-custom">
+        <div class="container">
+            <a class="navbar-brand" href="#"><i class="fas fa-code"></i> CodeCraft</a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navMenu"><span class="navbar-toggler-icon"></span></button>
+            <div class="collapse navbar-collapse" id="navMenu">
+                <ul class="navbar-nav mx-auto">
+                    <li class="nav-item"><a class="nav-link" href="login.html">Courses</a></li>
+                    <li class="nav-item"><a class="nav-link" href="login.html">Bundles</a></li>
+                    <li class="nav-item"><a class="nav-link" href="login.html">Dashboard</a></li>
+                </ul>
+                <div class="d-flex align-items-center gap-4 flex-wrap justify-content-center mt-2 mt-lg-0">
+                    <button class="btn btn-outline-brand" onclick="toggleForm('login')">Login</button>
+                    <button class="btn btn-brand" onclick="toggleForm('signup')">SignUp</button>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- AUTH WRAPPER -->
+    <div class="auth-wrapper">
+        <!-- LOGIN CARD -->
+        <div id="login-section" class="form-section active">
+            <div class="auth-card">
+                <div class="logo-wrapper">
+                    <div class="logo-icon-box"><i class="fas fa-code"></i></div>
+                </div>
+                <h2>Welcome back</h2>
+
+                <!-- Manual Password Login -->
+                <div class="floating-group">
+                    <i class="fas fa-envelope input-icon"></i>
+                    <input type="email" class="form-control" id="loginEmail" placeholder=" " required>
+                    <label class="form-label">Email address</label>
+                </div>
+
+                <div class="floating-group">
+                    <i class="fas fa-lock input-icon"></i>
+                    <input type="password" class="form-control" id="loginPassword" placeholder=" " required>
+                    <label class="form-label">Password</label>
+                </div>
+
+                <div class="d-flex justify-content-end mb-3">
+                    <a href="#" class="forgot-link" onclick="openForgotPasswordModal()">Forgot password?</a>
+                </div>
+
+                <button class="btn-brand-premium" onclick="handleLogin()">Log In</button>
+
+                <div class="social-divider"><span>or continue with</span></div>
+
+                <!-- ✅ Social Buttons (Only Google) -->
+                <div class="social-btn-group">
+                    <div class="social-btn google" onclick="loginWithGoogle()"><i class="fab fa-google"></i></div>
+                </div>
+
+                <p class="footer-text">Don't have an account? <a href="#" onclick="toggleForm('signup')">Sign up</a></p>
+            </div>
+        </div>
+
+        <!-- SIGNUP CARD -->
+        <div id="signup-section" class="form-section">
+            <div class="auth-card">
+                <div class="logo-wrapper">
+                    <div class="logo-icon-box"><i class="fas fa-code"></i></div>
+                </div>
+                <h2>Create account</h2>
+
+                <div class="row g-3">
+                    <div class="col-md-6">
+                        <div class="floating-group">
+                            <i class="fas fa-user input-icon"></i>
+                            <input type="text" class="form-control" id="firstNameInput" placeholder=" " required>
+                            <label class="form-label">First name</label>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="floating-group">
+                            <i class="fas fa-user input-icon"></i>
+                            <input type="text" class="form-control" id="lastNameInput" placeholder=" " required>
+                            <label class="form-label">Last name</label>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="floating-group">
+                    <i class="fas fa-envelope input-icon"></i>
+                    <input type="email" class="form-control" id="signupEmail" placeholder=" " required>
+                    <label class="form-label">Email address</label>
+                </div>
+
+                <div class="floating-group">
+                    <i class="fas fa-lock input-icon"></i>
+                    <input type="password" class="form-control" id="signupPassword" placeholder=" " required>
+                    <label class="form-label">Create a password</label>
+                    <div style="font-size: 0.75rem; color: var(--text-muted); margin-top: 4px; padding-left: 4px;">At least 8 characters</div>
+                </div>
+
+                <div class="floating-group">
+                    <i class="fas fa-gift input-icon"></i>
+                    <input type="text" class="form-control" id="referralCode" placeholder=" ">
+                    <label class="form-label">Referral code (optional)</label>
+                </div>
+
+                <div class="floating-group">
+                    <i class="fas fa-users input-icon"></i>
+                    <select class="form-control" id="roleSelect">
+                        <option value="" disabled selected>Select your role</option>
+                        <option value="student">Student — taking courses &amp; mock exams</option>
+                        <option value="instructor">Instructor — creating courses &amp; content</option>
+                    </select>
+                </div>
+
+                <button class="btn-brand-premium" onclick="handleSignup()">Sign Up</button>
+
+                <div class="social-divider"><span>or continue with</span></div>
+
+                <div class="social-btn-group">
+                    <div class="social-btn google" onclick="loginWithGoogle()"><i class="fab fa-google"></i></div>
+                </div>
+
+                <p class="footer-text">Already have an account? <a href="#" onclick="toggleForm('login')">Log in</a></p>
+            </div>
+        </div>
+    </div>
+
+    <!-- FORGOT PASSWORD MODAL -->
+    <div class="modal fade" id="forgotPasswordModal" tabindex="-1">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header border-0 pb-0">
+                    <h5 class="modal-title fw-bold">Reset Password</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body p-4">
+                    <p class="text-muted mb-3">Enter your email address and we'll send you a reset link.</p>
+                    <div class="floating-group">
+                        <i class="fas fa-envelope input-icon"></i>
+                        <input type="email" class="form-control" id="resetEmail" placeholder=" " required>
+                        <label class="form-label">Email address</label>
+                    </div>
+                    <button class="btn-brand-premium" onclick="simulateReset()">Send Reset Link</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- FOOTER -->
+    <footer>
+        <div class="container">
+            <div class="row g-4">
+                <div class="col-md-3">
+                    <h5><i class="fas fa-code text-warning"></i> CodeCraft</h5>
+                    <p style="font-size: 0.9rem;">Empowering developers and instructors.</p>
+                    <div class="social-icons mt-3 d-flex gap-3">
+                        <a href="#" target="_blank" style="color: #aaa; font-size: 1.2rem; transition: 0.3s;"><i class="fab fa-facebook-f"></i></a>
+                        <a href="#" target="_blank" style="color: #aaa; font-size: 1.2rem; transition: 0.3s;"><i class="fab fa-twitter"></i></a>
+                        <a href="#" target="_blank" style="color: #aaa; font-size: 1.2rem; transition: 0.3s;"><i class="fab fa-instagram"></i></a>
+                        <a href="#" target="_blank" style="color: #aaa; font-size: 1.2rem; transition: 0.3s;"><i class="fab fa-github"></i></a>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <h5>Products</h5>
+                    <ul>
+                        <li><a href="courses.html">Courses</a></li>
+                        <li><a href="create-bundle.html">Bundles</a></li>
+                        <li><a href="mock-exams.html">Mock Exams</a></li>
+                        <li><a href="instructor-tools.html">Instructor Tools</a></li>
+                    </ul>
+                </div>
+                <div class="col-md-3">
+                    <h5>Support</h5>
+                    <ul>
+                        <li><a href="support.html">Help Center</a></li>
+                        <li><a href="contact.html">Contact Us</a></li>
+                        <li><a href="faq.html">FAQs</a></li>
+                    </ul>
+                </div>
+                <div class="col-md-3">
+                    <h5>Legal</h5>
+                    <ul>
+                        <li><a href="legal.html">Privacy Policy</a></li>
+                        <li><a href="legal.html">Terms of Service</a></li>
+                        <li><a href="legal.html">Cookie Policy</a></li>
+                    </ul>
+                </div>
+            </div>
+            <div class="footer-bottom">&copy; 2026 CodeCraft Tech Company. All rights reserved.</div>
+        </div>
+    </footer>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/@emailjs/browser@3/dist/email.min.js"></script>
+    <script type="text/javascript">(function(){ emailjs.init("ETHPt49w1i1bym3oO"); })();</script>
+
+    <!-- ✅ FIREBASE AUTH (GOOGLE ONLY) -->
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/12.16.0/firebase-app.js";
+        import { getAnalytics } from "https://www.gstatic.com/firebasejs/12.16.0/firebase-analytics.js";
+        // ✅ Only importing Google Auth Provider
+        import { getAuth, GoogleAuthProvider, signInWithRedirect, getRedirectResult } from "https://www.gstatic.com/firebasejs/12.16.0/firebase-auth.js";
+
+        const firebaseConfig = {
+            apiKey: "AIzaSyDEGDYcSe23vKUUM7CjnfcfBm1_ICoYOoo",
+            authDomain: "codecraft-academy-dc07d.firebaseapp.com",
+            databaseURL: "https://codecraft-academy-dc07d-default-rtdb.firebaseio.com",
+            projectId: "codecraft-academy-dc07d",
+            storageBucket: "codecraft-academy-dc07d.firebasestorage.app",
+            messagingSenderId: "625831642025",
+            appId: "1:625831642025:web:e9b1fc3ad75023a985fab8"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const analytics = getAnalytics(app);
+        const auth = getAuth(app);
+
+        // ✅ 1. CHECK GOOGLE REDIRECT RESULT
+        getRedirectResult(auth)
+        .then((result) => {
+            if (result) {
+                const user = result.user;
+                const firstName = user.displayName.split(' ')[0];
+                localStorage.setItem('codecraft_firstName', firstName);
+                localStorage.setItem('userRole', 'student');
+                localStorage.removeItem('authToken');
+                window.location.href = 'dashboard.html';
+            }
+        }).catch((error) => {
+            console.error("Login error:", error.message);
+        });
+
+        // ✅ 2. GOOGLE LOGIN TRIGGER
+        window.loginWithGoogle = function() {
+            const provider = new GoogleAuthProvider();
+            signInWithRedirect(auth, provider); 
+        };
+    </script>
+
+    <!-- MAIN LOGIC (Manual Password Auth & Render Keep-Alive) -->
+    <script>
+        const API_URL = "https://codecraft-tech-academy-backend.onrender.com"; 
+
+        function toggleForm(form) {
+            document.getElementById('login-section').classList.remove('active');
+            document.getElementById('signup-section').classList.remove('active');
+            document.getElementById(form + '-section').classList.add('active');
+        }
+
+        async function handleLogin() {
+            const email = document.getElementById('loginEmail').value.trim();
+            const password = document.getElementById('loginPassword').value.trim();
+            if (!email || !password) { alert("Please enter both your email and password!"); return; }
+            try {
+                const res = await fetch(`${API_URL}/api/login`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ email, password }) });
+                const data = await res.json();
+                if (res.ok) {
+                    localStorage.setItem('authToken', data.token);
+                    localStorage.setItem('codecraft_firstName', data.user.firstName);
+                    localStorage.setItem('userRole', data.user.role);
+                    localStorage.setItem('userEmail', data.user.email);
+                    window.location.href = 'dashboard.html'; 
+                } else { alert(data.message || "Invalid email or password."); }
+            } catch (error) { alert("Network error. Please check your internet connection."); }
+        }
+
+        async function handleSignup() {
+            const firstName = document.getElementById('firstNameInput').value.trim();
+            const lastName = document.getElementById('lastNameInput').value.trim();
+            const email = document.getElementById('signupEmail').value.trim();
+            const password = document.getElementById('signupPassword').value.trim();
+            const role = document.getElementById('roleSelect').value;
+            const referralCode = document.getElementById('referralCode').value.trim();
+
+            if (!firstName || !lastName || !email || !password || !role) { alert("Please fill in all required fields!"); return; }
+
+            try {
+                const res = await fetch(`${API_URL}/api/signup`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ firstName, lastName, email, password, role, referralCode }) });
+                const data = await res.json();
+                if (res.ok) {
+                    localStorage.setItem('authToken', data.token);
+                    localStorage.setItem('codecraft_firstName', data.user.firstName);
+                    localStorage.setItem('userRole', data.user.role);
+                    localStorage.setItem('userEmail', data.user.email);
+                    if (referralCode && referralCode.trim() !== '') {
+                        let referrals = JSON.parse(localStorage.getItem('codecraft_referrals')) || [];
+                        const alreadyExists = referrals.some(entry => entry.newUserEmail === email);
+                        if (!alreadyExists) {
+                            referrals.push({ newUserName: firstName, newUserEmail: email, referrerCode: referralCode, date: new Date().toLocaleDateString() });
+                            localStorage.setItem('codecraft_referrals', JSON.stringify(referrals));
+                        }
+                    }
+                    window.location.href = 'dashboard.html';
+                } else { alert(data.message || "Signup failed. Please try again."); }
+            } catch (error) { alert("Network error. Please check your internet connection."); }
+        }
+
+        function openForgotPasswordModal() { const myModal = new bootstrap.Modal(document.getElementById('forgotPasswordModal')); myModal.show(); }
+
+        function simulateReset() {
+            const email = document.getElementById('resetEmail').value.trim();
+            if (!email) { alert("Please enter your email address."); return; }
+            const btn = document.querySelector('#forgotPasswordModal .btn-brand-premium');
+            btn.innerText = "Sending...";
+            btn.disabled = true;
+            emailjs.send("service_humau1h", "template_367ligo", { email: email })
+            .then(function(response) {
+                const modalEl = document.getElementById('forgotPasswordModal');
+                const modal = bootstrap.Modal.getInstance(modalEl);
+                modal.hide();
+                alert(`✅ Reset request sent! You will receive an email at ${email}.`);
+                document.getElementById('resetEmail').value = '';
+                btn.innerText = "Send Reset Link";
+                btn.disabled = false;
+            }, function(error) {
+                alert("❌ Failed to send email. Please check your EmailJS settings.");
+                console.error(error);
+                btn.innerText = "Send Reset Link";
+                btn.disabled = false;
+            });
+        }
+
+        const wakeUpBackend = () => { fetch(`${API_URL}/api/me`).then(res => { if (res.ok) console.log("✅ Backend kept awake successfully."); }).catch(() => { console.log("⏳ Render backend is currently waking up..."); }); };
+        wakeUpBackend();
+        setInterval(wakeUpBackend, 600000);
+    </script>
+</body>
+</html>

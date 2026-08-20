@@ -1,0 +1,348 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CodeCraft - Course Details</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root { --brand-orange: #FF6B00; --brand-black: #1A1A1A; --brand-green: #22c55e; }
+        body { background: #f4f6f9; font-family: 'Segoe UI', sans-serif; min-height: 100vh; display: flex; flex-direction: column; }
+        
+        /* Navbar & Sidebar */
+        .navbar-custom { background: white; box-shadow: 0 2px 10px rgba(0,0,0,0.05); padding: 12px 0; }
+        .navbar-brand { font-weight: 700; color: var(--brand-black); font-size: 1.5rem; }
+        .navbar-brand i { color: var(--brand-orange); margin-right: 8px; }
+        .btn-logout-main { background: var(--brand-orange); color: white; border-radius: 8px; padding: 6px 20px; font-weight: 600; border: none; }
+        .btn-logout-main:hover { background: #e05a00; color: white; }
+        .navbar-toggler { border: none; font-size: 1.5rem; }
+        .navbar-toggler:focus { box-shadow: none; }
+        .offcanvas { max-width: 320px; border: none; }
+        .offcanvas-header { border-bottom: 1px solid #eee; padding: 15px 20px; }
+        .sidebar-search { padding: 15px 20px; border-bottom: 1px solid #eee; }
+        .sidebar-search .input-group { border-radius: 50px; overflow: hidden; border: 1px solid #ddd; }
+        .sidebar-search .form-control { border: none; background: #fafafa; padding: 10px 15px; }
+        .sidebar-search .input-group-text { background: #fafafa; border: none; color: #999; }
+        .sidebar-links { padding: 15px 0; flex-grow: 1; }
+        .sidebar-links a { display: block; padding: 12px 25px; color: #333; font-weight: 600; text-decoration: none; transition: 0.2s; }
+        .sidebar-links a:hover { background: #f8f9fa; color: var(--brand-orange); padding-left: 30px; }
+        .sidebar-logout-wrap { padding: 15px 20px; border-top: 1px solid #eee; }
+        .btn-sidebar-logout { background: var(--brand-orange); color: white; border: none; border-radius: 8px; width: 100%; padding: 12px; font-weight: 600; }
+
+        /* --- COURSE DETAILS PAGE --- */
+        .details-container { max-width: 800px; margin: 30px auto; padding: 0 20px; }
+        
+        /* Animations */
+        .animate-up { opacity: 0; transform: translateY(30px); animation: slideUpFade 0.6s ease forwards; }
+        .delay-1 { animation-delay: 0.1s; }
+        .delay-2 { animation-delay: 0.3s; }
+        .delay-3 { animation-delay: 0.5s; }
+        @keyframes slideUpFade { to { opacity: 1; transform: translateY(0); } }
+
+        .course-badge { display: inline-block; background: #fff3e6; color: var(--brand-orange); font-size: 0.85rem; font-weight: 600; padding: 6px 14px; border-radius: 50px; margin-bottom: 15px; }
+        .course-title-lg { font-weight: 700; font-size: 1.8rem; color: var(--brand-black); line-height: 1.3; }
+        .course-instructor { color: #888; font-size: 1rem; margin-bottom: 20px; }
+        .course-desc { font-size: 1.05rem; color: #444; margin-bottom: 30px; }
+
+        /* --- ACCORDION (SYLLABUS) STYLING --- */
+        .curriculum-title { font-weight: 700; font-size: 1.3rem; margin-bottom: 15px; color: var(--brand-black); }
+        
+        .custom-accordion .accordion-item {
+            border: 1px solid #eee;
+            border-radius: 12px !important;
+            margin-bottom: 15px;
+            overflow: hidden;
+            background: white;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.02);
+        }
+        .custom-accordion .accordion-header button {
+            font-weight: 700;
+            color: #333;
+            padding: 18px 20px;
+            background: white;
+            box-shadow: none !important;
+            font-size: 1.05rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .custom-accordion .accordion-header button:not(.collapsed) {
+            border-bottom: 1px solid #eee;
+        }
+        .custom-accordion .accordion-header button::after {
+            display: none; /* Hide default bootstrap arrow */
+        }
+        .accordion-status {
+            color: #777;
+            font-size: 0.9rem;
+            font-weight: 500;
+        }
+
+        /* Lesson List inside Accordion */
+        .lesson-list { padding: 0; margin: 0; list-style: none; }
+        .lesson-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 16px 20px;
+            border-bottom: 1px solid #f5f5f5;
+            color: #555;
+            font-size: 0.98rem;
+            background: #fafbfc;
+            transition: 0.2s;
+        }
+        .lesson-item:last-child { border-bottom: none; }
+        .lesson-item:hover { background: #f4f6f9; }
+        .lesson-left { display: flex; align-items: center; gap: 12px; }
+        .lesson-left i { color: #999; font-size: 0.8rem; }
+        .lesson-lock { color: #fbbf24; font-size: 1rem; } /* Gold padlock */
+
+        /* Enrollment Card */
+        .enroll-card { background: white; border: 1px solid #eee; border-radius: 16px; padding: 25px; margin-top: 10px; box-shadow: 0 4px 15px rgba(0,0,0,0.05); }
+        .enroll-price { font-size: 2rem; font-weight: 700; color: var(--brand-black); margin-bottom: 15px; }
+        .btn-enroll { background: var(--brand-green); color: white; border: none; border-radius: 8px; padding: 14px; width: 100%; font-weight: 600; font-size: 1.1rem; transition: 0.3s; }
+        .btn-enroll:hover { background: #16a34a; transform: scale(1.02); color: white; }
+        .enroll-features { margin-top: 20px; color: #666; font-size: 0.95rem; }
+        .enroll-features li { margin-bottom: 8px; list-style: none; padding-left: 0; }
+        .enroll-features li::before { content: "• "; color: var(--brand-orange); font-weight: bold; }
+
+        footer { background: var(--brand-black); color: #ccc; padding: 40px 0 20px; margin-top: auto; }
+        footer h5 { color: white; font-weight: 600; }
+        footer ul { list-style: none; padding: 0; }
+        footer ul li a { color: #aaa; text-decoration: none; transition: 0.3s; }
+        footer ul li a:hover { color: var(--brand-orange); padding-left: 5px; }
+        .footer-bottom { border-top: 1px solid #333; padding-top: 20px; margin-top: 30px; text-align: center; }
+    </style>
+</head>
+<body>
+
+    <!-- NAVBAR -->
+    <nav class="navbar navbar-expand-lg navbar-custom">
+        <div class="container">
+            <a class="navbar-brand" href="dashboard.html"><i class="fas fa-code"></i> CodeCraft</a>
+            <div class="d-flex align-items-center gap-3">
+                <button class="btn btn-logout-main d-none d-md-block" onclick="logoutUser()">Logout</button>
+                <button class="navbar-toggler" type="button" data-bs-toggle="offcanvas" data-bs-target="#sidebarMenu">
+                    <span class="navbar-toggler-icon"></span>
+                </button>
+            </div>
+        </div>
+    </nav>
+
+    <!-- SIDEBAR -->
+    <div class="offcanvas offcanvas-end" tabindex="-1" id="sidebarMenu">
+        <div class="offcanvas-header">
+            <h5 class="offcanvas-title fw-bold"><i class="fas fa-code text-warning"></i> CodeCraft</h5>
+            <button type="button" class="btn-close" data-bs-dismiss="offcanvas"></button>
+        </div>
+        <div class="offcanvas-body">
+            <div class="sidebar-search">
+                <div class="input-group">
+                    <span class="input-group-text"><i class="fas fa-search"></i></span>
+                    <input type="text" class="form-control" placeholder="Search courses...">
+                </div>
+            </div>
+            <div class="sidebar-links">
+                <a href="courses.html">Courses</a>
+                <a href="create-bundle.html">Bundles</a>
+                <a href="dashboard.html">Dashboard</a>
+                <a href="mock-exams.html">Mock Exams</a>
+                <a href="support.html">Support</a>
+                <a href="affiliate.html">Affiliate Program</a>
+                <a href="faq.html">FAQ</a>
+                  <a href="profile.html">Profile</a>
+            </div>
+            <div class="sidebar-logout-wrap">
+                <button class="btn-sidebar-logout" onclick="logoutUser()">Logout</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- COURSE DETAILS CONTENT -->
+    <div class="details-container" id="courseDetailsContainer">
+        <!-- Content will be injected here by JavaScript -->
+    </div>
+
+    <!-- FLOATING BUG/REPORT ICON -->
+    <div id="reportBugBtn" style="
+        position: fixed; 
+        bottom: 25px; 
+        left: 25px; 
+        width: 55px; 
+        height: 55px; 
+        background: rgba(255, 255, 255, 0.9); 
+        backdrop-filter: blur(8px);
+        border-radius: 50%; 
+        display: flex; 
+        align-items: center; 
+        justify-content: center; 
+        box-shadow: 0 4px 15px rgba(0,0,0,0.1); 
+        cursor: pointer; 
+        z-index: 9999;
+        transition: all 0.3s ease;
+        border: 1px solid rgba(255,107,0,0.2);
+    " onclick="openReportPage()">
+        <i class="fas fa-bug" style="color: #FF6B00; font-size: 22px;"></i>
+    </div>
+
+    <!-- FOOTER -->
+    <footer>
+        <div class="container">
+            <div class="row g-4">
+                <div class="col-md-3">
+                    <h5><i class="fas fa-code text-warning"></i> CodeCraft</h5>
+                    <p style="font-size: 0.9rem;">Empowering developers and instructors.</p>
+                    <div class="social-icons mt-3">
+                        <a href="https://www.facebook.com/profile.php?id=100084730695859" target="_blank" rel="noopener noreferrer"><i class="fab fa-facebook-f"></i></a>
+                        <a href="https://www.tiktok.com/@codecraft995" target="_blank" rel="noopener noreferrer"><i class="fab fa-tiktok"></i></a>
+                        <a href="https://www.instagram.com/codecraft331/" target="_blank" rel="noopener noreferrer"><i class="fab fa-instagram"></i></a>
+                        <a href="https://github.com/immanuel779" target="_blank" rel="noopener noreferrer"><i class="fab fa-github"></i></a>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <h5>Products</h5>
+                    <ul>
+                        <li><a href="courses.html">Courses</a></li>
+                        <li><a href="create-bundle.html">Bundles</a></li>
+                        <li><a href="mock-exams.html">Mock Exams</a></li>
+                        <li><a href="instructor-tools.html">Instructor Tools</a></li>
+                    </ul>
+                </div>
+                <div class="col-md-3">
+                    <h5>Support</h5>
+                    <ul>
+                        <li><a href="support.html">Help Center</a></li>
+                        <li><a href="contact.html">Contact Us</a></li>
+                        <li><a href="https://whatsapp.com/channel/0029VbAYte94o7qG2Dfrlt3D" target="_blank">Community</a></li>
+                        <li><a href="faq.html">FAQs</a></li>
+                    </ul>
+                </div>
+                <div class="col-md-3">
+                    <h5>Legal</h5>
+                    <ul>
+                        <li><a href="legal.html">Privacy Policy</a></li>
+                        <li><a href="legal.html">Terms of Service</a></li>
+                        <li><a href="legal.html">Cookie Policy</a></li>
+                    </ul>
+                </div>
+            </div>
+            <div class="footer-bottom">
+                &copy; 2026 CodeCraft Tech Company. All rights reserved.
+            </div>
+        </div>
+    </footer>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        // 1. PROTECT PAGE & LOGOUT
+        document.addEventListener('DOMContentLoaded', function() {
+            const firstName = localStorage.getItem('codecraft_firstName');
+            if (!firstName) { window.location.href = 'index.html'; }
+            loadCourseDetails();
+        });
+
+        function logoutUser() {
+            localStorage.removeItem('codecraft_firstName');
+            localStorage.removeItem('userRole');
+            localStorage.removeItem('selectedCourseId');
+            window.location.href = 'index.html';
+        }
+
+        // 2. FULL COURSE DATA (10 Courses - IDs 1 to 10)
+        const allCourses = [
+            { id: 1, badge: "freelance", title: "Faceless YouTube Channel: From Beginner to Pro [80% AI Automation]", price: "₦3,999.00", image: "https://via.placeholder.com/800x400/003366/FFFFFF?text=Faceless+YouTube+Channel", instructor: "AdminCodecraft", desc: "Build a faceless YouTube channel with AI.", features: ["Full lifetime access", "Video + text lessons", "Certificate on completion"], syllabus: [ { moduleName: "Module 1: Introduction", lessons: ["Introduction"] }, { moduleName: "Module 2: Lessons", lessons: ["Mastering ChatGPT", "Voiceovers with ElevenLabs", "Editing with Clipchamp", "Audio Cleanup", "AI Image Generation", "Thumbnail Design"] } ] },
+            { id: 2, badge: "3D animation", title: "3D Modelling and Animation with Blender", price: "₦3,600.00", image: "https://via.placeholder.com/800x400/2c3e50/FFFFFF?text=3D+Modeling+And+Animation", instructor: "AdminCodecraft", desc: "Master 3D modeling and animation using Blender from scratch.", features: ["Full lifetime access", "Project files included", "Certificate on completion"], syllabus: [ { moduleName: "Module 1: Blender Basics", lessons: ["Interface Overview", "Navigating the 3D Viewport"] }, { moduleName: "Module 2: Modeling Tools", lessons: ["Extruding and Insetting", "Subdivision Surface Modeling"] }, { moduleName: "Module 3: Animation Rigging", lessons: ["Armatures and Bones", "Keyframe Animation"] } ] },
+            { id: 3, badge: "web development", title: "Full Stack Web Development: React & Node.js Masterclass", price: "₦5,500.00", image: "https://via.placeholder.com/800x400/008000/FFFFFF?text=Full+Stack+Web+Dev", instructor: "AdminCodecraft", desc: "Become a full stack developer by building real-world projects.", features: ["Full lifetime access", "Coding exercises", "Certificate on completion"], syllabus: [ { moduleName: "Module 1: Frontend Basics", lessons: ["HTML5 & CSS3", "JavaScript ES6"] }, { moduleName: "Module 2: React Hooks", lessons: ["useState & useEffect", "Building Components"] }, { moduleName: "Module 3: Node.js API", lessons: ["Express Server", "MongoDB Integration"] } ] },
+            { id: 4, badge: "graphic design", title: "Adobe Photoshop & Illustrator: Design Like a Pro", price: "₦2,800.00", image: "https://via.placeholder.com/800x400/800080/FFFFFF?text=Graphic+Design+Mastery", instructor: "AdminCodecraft", desc: "Learn the essential tools of Photoshop and Illustrator.", features: ["Full lifetime access", "Resource files", "Certificate on completion"], syllabus: [ { moduleName: "Module 1: Interface Overview", lessons: ["Workspace Setup", "Toolbar Basics"] }, { moduleName: "Module 2: Typography", lessons: ["Font Pairing", "Text Effects"] }, { moduleName: "Module 3: Vector Graphics", lessons: ["Pen Tool Mastery", "Shapes and Paths"] } ] },
+            { id: 5, badge: "content creation", title: "Video Editing for Beginners: Master CapCut from Scratch", price: "₦3,998.00", image: "https://via.placeholder.com/800x400/153624/FFFFFF?text=CapCut+Editing", instructor: "AdminCodecraft", desc: "Learn professional video editing on your phone and PC using CapCut.", features: ["Full lifetime access", "Project files", "Certificate on completion"], syllabus: [ { moduleName: "Module 1: CapCut Basics", lessons: ["Interface Overview", "Importing Clips"] }, { moduleName: "Module 2: Advanced Editing", lessons: ["Transitions", "Keyframing", "Motion Tracking"] } ] },
+            { id: 6, badge: "App development", title: "Complete Android & iOS Apps using Flutter 3.0", price: "₦3,900.00", image: "https://via.placeholder.com/800x400/155165/FFFFFF?text=Flutter+Apps", instructor: "AdminCodecraft", desc: "Build cross-platform mobile apps using Google's Flutter framework.", features: ["Full lifetime access", "Source code included", "Certificate on completion"], syllabus: [ { moduleName: "Module 1: Dart Basics", lessons: ["Variables & Data Types", "Functions & Classes"] }, { moduleName: "Module 2: Widgets", lessons: ["Stateless Widgets", "Stateful Widgets"] }, { moduleName: "Module 3: Firebase Backend", lessons: ["Firebase Auth", "Cloud Firestore"] } ] },
+            { id: 7, badge: "UX/UI", title: "Complete UI UX Mega Course from Scratch", price: "₦2,850.00", image: "https://via.placeholder.com/800x400/158671/FFFFFF?text=UI+UX+Design", instructor: "AdminCodecraft", desc: "Master user interface and user experience design principles.", features: ["Full lifetime access", "Figma files included", "Certificate on completion"], syllabus: [ { moduleName: "Module 1: Design Principles", lessons: ["Color Theory", "Typography"] }, { moduleName: "Module 2: Wireframing", lessons: ["Low Fidelity", "High Fidelity Mockups"] }, { moduleName: "Module 3: Prototyping", lessons: ["Interactive Prototypes", "User Testing"] } ] },
+            { id: 8, badge: "Audio Editing", title: "Audio Editing and Music Production for Beginners", price: "₦2,900.00", image: "https://via.placeholder.com/800x400/151628/FFFFFF?text=Audio+Editing", instructor: "AdminCodecraft", desc: "Learn audio editing, mixing, and music production from scratch.", features: ["Full lifetime access", "Sample packs included", "Certificate on completion"], syllabus: [ { moduleName: "Module 1: Audio Basics", lessons: ["Recording", "Mixing"] }, { moduleName: "Module 2: Music Production", lessons: ["Beats", "Melodies"] } ] },
+            { id: 9, badge: "AI", title: "Generative AI & ChatGPT for Business Growth", price: "₦4,500.00", image: "https://via.placeholder.com/800x400/167744/FFFFFF?text=Generative+AI", instructor: "AdminCodecraft", desc: "Leverage ChatGPT and AI tools to automate your business.", features: ["Full lifetime access", "Prompt templates", "Certificate on completion"], syllabus: [ { moduleName: "Module 1: ChatGPT Basics", lessons: ["Prompt Engineering", "Business Use Cases"] }, { moduleName: "Module 2: AI Automation", lessons: ["ChatGPT API", "Automating Tasks"] } ] },
+            { id: 10, badge: "Marketing", title: "Digital Marketing 101: Social Media & SEO Mastery", price: "₦3,200.00", image: "https://via.placeholder.com/800x400/155780/FFFFFF?text=Digital+Marketing", instructor: "AdminCodecraft", desc: "Master social media, SEO, and digital advertising strategies.", features: ["Full lifetime access", "Growth templates", "Certificate on completion"], syllabus: [ { moduleName: "Module 1: SEO Basics", lessons: ["Keywords", "On-Page SEO"] }, { moduleName: "Module 2: Social Media", lessons: ["Facebook Ads", "Instagram Growth"] } ] }
+        ];
+
+        // 3. LOAD DETAILS FUNCTION
+        function loadCourseDetails() {
+            const selectedId = parseInt(localStorage.getItem('selectedCourseId'));
+            const course = allCourses.find(c => c.id === selectedId);
+            const container = document.getElementById('courseDetailsContainer');
+
+            if (!course) {
+                container.innerHTML = `<div class="text-center py-5"><h3>Course not found!</h3><a href="courses.html" class="btn btn-brand mt-3">Go back</a></div>`;
+                return;
+            }
+
+            let syllabusHTML = '';
+            course.syllabus.forEach((module, index) => {
+                let lessonsHTML = '';
+                module.lessons.forEach(lesson => {
+                    lessonsHTML += `
+                        <li class="lesson-item">
+                            <div class="lesson-left">
+                                <i class="fas fa-play"></i> ${lesson}
+                            </div>
+                            <i class="fas fa-lock lesson-lock"></i>
+                        </li>
+                    `;
+                });
+                syllabusHTML += `
+                    <div class="accordion-item">
+                        <h2 class="accordion-header" id="heading${index}">
+                            <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapse${index}" aria-expanded="false" aria-controls="collapse${index}">
+                                <span>${module.moduleName}</span>
+                                <span class="accordion-status">Open</span>
+                            </button>
+                        </h2>
+                        <div id="collapse${index}" class="accordion-collapse collapse" aria-labelledby="heading${index}" data-bs-parent="#syllabusAccordion">
+                            <div class="accordion-body p-0">
+                                <ul class="lesson-list">
+                                    ${lessonsHTML}
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            });
+
+            let featuresHTML = '';
+            course.features.forEach(feat => {
+                featuresHTML += `<li>${feat}</li>`;
+            });
+
+            container.innerHTML = `
+                <div class="animate-up">
+                    <span class="course-badge">${course.badge}</span>
+                    <h1 class="course-title-lg">${course.title}</h1>
+                    <p class="course-instructor">By ${course.instructor}</p>
+                    <p class="course-desc">${course.desc}</p>
+                </div>
+                <h3 class="curriculum-title animate-up delay-1">Curriculum</h3>
+                <div class="accordion custom-accordion animate-up delay-1" id="syllabusAccordion">
+                    ${syllabusHTML}
+                </div>
+                <div class="enroll-card animate-up delay-3">
+                    <div class="enroll-price">${course.price}</div>
+                    <button class="btn-enroll" onclick="goToCheckout('${course.price}', '${course.title}')">Enroll now</button>
+                    <ul class="enroll-features">
+                        ${featuresHTML}
+                    </ul>
+                </div>
+            `;
+        }
+
+        // 4. PASS DATA TO CHECKOUT
+        function goToCheckout(price, title) {
+            localStorage.setItem('checkoutPrice', price);
+            localStorage.setItem('checkoutCourseTitle', title);
+            window.location.href = 'checkout.html';
+        }
+
+        // 5. BUG ICON
+        function openReportPage() {
+            window.location.href = 'support.html';
+        }
+    </script>
+</body>
+</html>

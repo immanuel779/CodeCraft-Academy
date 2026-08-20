@@ -1,0 +1,574 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CodeCraft - Profile</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root { 
+            --brand-orange: #FF6B00; 
+            --brand-black: #1A1A1A; 
+        }
+        body { 
+            background: #f4f6f9; 
+            font-family: 'Segoe UI', sans-serif; 
+            min-height: 100vh; 
+            display: flex; 
+            flex-direction: column; 
+        }
+
+        /* --- NAVBAR --- */
+        .navbar-custom { 
+            background: white; 
+            box-shadow: 0 2px 10px rgba(0,0,0,0.05); 
+            padding: 12px 0; 
+        }
+        .navbar-brand { 
+            font-weight: 700; 
+            color: var(--brand-black); 
+            font-size: 1.5rem; 
+        }
+        .navbar-brand i { 
+            color: var(--brand-orange); 
+            margin-right: 8px; 
+        }
+        .navbar-toggler { 
+            border: none; 
+            font-size: 1.5rem; 
+        }
+        .navbar-toggler:focus { 
+            box-shadow: none; 
+        }
+
+        /* --- SIDEBAR (WHITE VERSION) --- */
+        .offcanvas { 
+            max-width: 320px; 
+            border: none; 
+            background: white; 
+        }
+        .offcanvas-header { 
+            border-bottom: 1px solid #eee; 
+            padding: 15px 20px; 
+        }
+        .offcanvas-title { 
+            color: var(--brand-black); 
+            font-weight: 700; 
+        }
+        .offcanvas-title i { 
+            color: var(--brand-orange); 
+            margin-right: 8px; 
+        }
+        .offcanvas-body { 
+            padding: 0; 
+            display: flex; 
+            flex-direction: column; 
+        }
+
+        /* Sidebar Search Bar */
+        .sidebar-search { 
+            padding: 15px 20px; 
+            border-bottom: 1px solid #eee; 
+        }
+        .sidebar-search .input-group { 
+            border-radius: 50px; 
+            overflow: hidden; 
+            border: 1px solid #ddd; 
+        }
+        .sidebar-search .form-control { 
+            border: none; 
+            background: #fafafa; 
+            padding: 10px 15px; 
+        }
+        .sidebar-search .input-group-text { 
+            background: #fafafa; 
+            border: none; 
+            color: #999; 
+        }
+
+        /* Sidebar Links */
+        .sidebar-links { 
+            padding: 15px 0; 
+            flex-grow: 1; 
+        }
+        .sidebar-links a { 
+            display: block; 
+            padding: 12px 25px; 
+            color: #333; 
+            font-weight: 600; 
+            text-decoration: none; 
+            transition: all 0.2s; 
+        }
+        .sidebar-links a:hover { 
+            background: #f8f9fa; 
+            color: var(--brand-orange); 
+            padding-left: 30px; 
+        }
+        
+        /* Sidebar Logout Button */
+        .sidebar-logout-wrap { 
+            padding: 15px 20px; 
+            border-top: 1px solid #eee; 
+        }
+        .btn-sidebar-logout { 
+            background: var(--brand-orange); 
+            color: white; 
+            border: none; 
+            border-radius: 8px; 
+            width: 100%; 
+            padding: 12px; 
+            font-weight: 700; 
+            transition: 0.3s; 
+        }
+        .btn-sidebar-logout:hover { 
+            background: #e05a00; 
+            color: white; 
+        }
+
+        /* --- PROFILE CONTENT --- */
+        .dash-container { 
+            max-width: 800px; 
+            margin: 40px auto; 
+            padding: 0 20px; 
+            flex: 1;
+        }
+
+        .profile-header-wrapper { 
+            text-align: center; 
+            margin-bottom: 25px; 
+        }
+        .profile-img-wrapper { 
+            position: relative; 
+            width: 110px; 
+            height: 110px; 
+            margin: 0 auto 15px; 
+            cursor: pointer; 
+        }
+        .profile-img-wrapper img { 
+            width: 100%; height: 100%; 
+            border-radius: 50%; 
+            border: 3px solid white; 
+            box-shadow: 0 4px 10px rgba(0,0,0,0.05);
+            object-fit: cover;
+        }
+        .camera-icon { 
+            position: absolute; 
+            bottom: 0; right: 0; 
+            background: var(--brand-orange); 
+            color: white; 
+            padding: 8px; 
+            border-radius: 50%; 
+            border: 2px solid white;
+            font-size: 14px; 
+        }
+        .profile-name { 
+            font-weight: 700; 
+            color: var(--brand-black); 
+            font-size: 1.5rem; 
+            margin: 0; 
+        }
+        .profile-handle { 
+            color: #888; 
+            font-size: 0.9rem; 
+            margin-bottom: 5px; 
+        }
+
+        /* Stats Cards */
+        .stat-card { 
+            background: white; 
+            border-radius: 12px; 
+            padding: 15px; 
+            text-align: center; 
+            border: 1px solid #eee; 
+            box-shadow: 0 2px 10px rgba(0,0,0,0.03); 
+        }
+        .stat-card h4 { 
+            font-weight: 700; 
+            color: var(--brand-black); 
+            margin: 0; 
+        }
+        .stat-card span { 
+            color: #888; 
+            font-size: 0.85rem; 
+        }
+
+        /* Menu Buttons */
+        .section-title { 
+            font-weight: 600; 
+            font-size: 1.2rem; 
+            margin-bottom: 15px; 
+            color: var(--brand-black); 
+        }
+        .profile-menu-btn { 
+            background: white; 
+            border-radius: 12px; 
+            padding: 16px 20px; 
+            margin-bottom: 12px; 
+            display: flex; 
+            justify-content: space-between; 
+            align-items: center; 
+            cursor: pointer; 
+            transition: 0.2s;
+            border: 1px solid #eee; 
+            width: 100%;
+            color: var(--brand-black);
+            box-shadow: 0 2px 10px rgba(0,0,0,0.02);
+        }
+        .profile-menu-btn:hover { 
+            border-color: var(--brand-orange); 
+            transform: translateY(-2px); 
+            box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+        }
+        .menu-left { 
+            display: flex; 
+            align-items: center; 
+            gap: 15px; 
+        }
+        .menu-icon { 
+            width: 36px; height: 36px; 
+            border-radius: 50%; 
+            display: flex; 
+            align-items: center; 
+            justify-content: center; 
+            font-size: 1rem;
+        }
+        .menu-icon.orange { background: #fff3e6; color: var(--brand-orange); }
+        .menu-icon.grey { background: #f8f9fa; color: #555; }
+        .menu-arrow { color: #ccc; font-size: 0.9rem; }
+
+        /* Modals & Footer */
+        .modal-content { border-radius: 16px; border: none; }
+        .modal-header { border-bottom: 1px solid #eee; }
+        .btn-brand { background: var(--brand-orange); color: white; border: none; border-radius: 8px; padding: 8px 24px; font-weight: 600; }
+        .btn-brand:hover { background: #e05a00; color: white; }
+        .hidden-file-input { display: none; }
+        
+        footer { background: var(--brand-black); color: #ccc; padding: 40px 0 20px; margin-top: auto; }
+        footer h5 { color: white; font-weight: 600; }
+        footer ul { list-style: none; padding: 0; }
+        footer ul li a { color: #aaa; text-decoration: none; transition: 0.3s; }
+        footer ul li a:hover { color: var(--brand-orange); padding-left: 5px; }
+        .footer-bottom { border-top: 1px solid #333; padding-top: 20px; margin-top: 30px; text-align: center; }
+    </style>
+</head>
+<body>
+
+    <!-- NAVBAR -->
+    <nav class="navbar navbar-expand-lg navbar-custom">
+        <div class="container">
+            <a class="navbar-brand" href="dashboard.html"><i class="fas fa-code"></i> CodeCraft</a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="offcanvas" data-bs-target="#sidebarMenu">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+        </div>
+    </nav>
+
+    <!-- SIDEBAR (WHITE VERSION) -->
+    <div class="offcanvas offcanvas-end" tabindex="-1" id="sidebarMenu">
+        <div class="offcanvas-header">
+            <h5 class="offcanvas-title"><i class="fas fa-code text-warning"></i> CodeCraft</h5>
+            <button type="button" class="btn-close" data-bs-dismiss="offcanvas"></button>
+        </div>
+        <div class="offcanvas-body">
+            <!-- Search Bar -->
+            <div class="sidebar-search">
+                <div class="input-group">
+                    <span class="input-group-text"><i class="fas fa-search"></i></span>
+                    <input type="text" class="form-control" placeholder="Search courses...">
+                </div>
+            </div>
+            <!-- Menu Links -->
+            <div class="sidebar-links">
+                <a href="courses.html">Courses</a>
+                <a href="create-bundle.html">Bundles</a>
+                <a href="dashboard.html">Dashboard</a>
+                <a href="profile.html">Profile</a> <!-- ✅ PROFILE LINK ADDED HERE -->
+                <a href="instructor-tools.html">Instructor Tools</a>
+                <a href="support.html">Support</a>
+                <a href="mock-exams.html">Mock Exams</a>
+                <a href="affiliate.html">Affiliate Program</a>
+                <a href="faq.html">FAQ</a>
+                <a href="legal.html">Legal</a>
+            </div>
+            <!-- Logout Button -->
+            <div class="sidebar-logout-wrap">
+                <button class="btn-sidebar-logout" onclick="logoutUser()">Logout</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- PROFILE MAIN CONTENT -->
+    <div class="dash-container">
+        <div class="profile-header-wrapper">
+            <div class="profile-img-wrapper" onclick="triggerPicUpload()">
+                <img src="https://ui-avatars.com/api/?name=User&background=FF6B00&color=fff&size=128" id="profileImg" alt="Profile">
+                <div class="camera-icon"><i class="fas fa-camera"></i></div>
+            </div>
+            <h3 class="profile-name" id="displayName">Oluwadamilare Opeyemi</h3>
+            <p class="profile-handle" id="displayHandle">@codecraft_student</p>
+        </div>
+
+        <input type="file" id="profilePicInput" class="hidden-file-input" accept="image/*">
+
+        <!-- Stats Row -->
+        <div class="row g-3 mb-4">
+            <div class="col-4">
+                <div class="stat-card">
+                    <h4 id="statCourses">0</h4>
+                    <span>Enrolled</span>
+                </div>
+            </div>
+            <div class="col-4">
+                <div class="stat-card">
+                    <h4>0</h4>
+                    <span>Following</span>
+                </div>
+            </div>
+            <div class="col-4">
+                <div class="stat-card">
+                    <h4>0</h4>
+                    <span>Followers</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Content & Preferences -->
+        <div class="section-title">Content</div>
+        <button class="profile-menu-btn" onclick="goTo('dashboard.html')">
+            <div class="menu-left">
+                <div class="menu-icon orange"><i class="fas fa-book-open"></i></div>
+                <span>My Courses</span>
+            </div>
+            <span class="menu-arrow"><i class="fas fa-chevron-right"></i></span>
+        </button>
+        <button class="profile-menu-btn" onclick="comingSoon('Downloads')">
+            <div class="menu-left">
+                <div class="menu-icon orange"><i class="fas fa-download"></i></div>
+                <span>Downloads</span>
+            </div>
+            <span class="menu-arrow"><i class="fas fa-chevron-right"></i></span>
+        </button>
+        <button class="profile-menu-btn" onclick="comingSoon('Bookmarks')">
+            <div class="menu-left">
+                <div class="menu-icon orange"><i class="fas fa-bookmark"></i></div>
+                <span>Bookmarks</span>
+            </div>
+            <span class="menu-arrow"><i class="fas fa-chevron-right"></i></span>
+        </button>
+
+        <div class="section-title mt-4">Preferences</div>
+        <button class="profile-menu-btn" data-bs-toggle="modal" data-bs-target="#editProfileModal">
+            <div class="menu-left">
+                <div class="menu-icon grey"><i class="fas fa-user-edit"></i></div>
+                <span>Edit Profile</span>
+            </div>
+            <span class="menu-arrow"><i class="fas fa-chevron-right"></i></span>
+        </button>
+        <button class="profile-menu-btn" data-bs-toggle="modal" data-bs-target="#settingsModal">
+            <div class="menu-left">
+                <div class="menu-icon grey"><i class="fas fa-cog"></i></div>
+                <span>Settings</span>
+            </div>
+            <span class="menu-arrow"><i class="fas fa-chevron-right"></i></span>
+        </button>
+        <button class="profile-menu-btn" onclick="comingSoon('About Us')">
+            <div class="menu-left">
+                <div class="menu-icon grey"><i class="fas fa-infinity"></i></div>
+                <span>About Us</span>
+            </div>
+            <span class="menu-arrow"><i class="fas fa-chevron-right"></i></span>
+        </button>
+        <button class="profile-menu-btn" onclick="goTo('legal.html')">
+            <div class="menu-left">
+                <div class="menu-icon grey"><i class="fas fa-shield-alt"></i></div>
+                <span>Legal Policy</span>
+            </div>
+            <span class="menu-arrow"><i class="fas fa-chevron-right"></i></span>
+        </button>
+        <button class="profile-menu-btn" onclick="goTo('support.html')">
+            <div class="menu-left">
+                <div class="menu-icon grey"><i class="fas fa-bug"></i></div>
+                <span>Feedback</span>
+            </div>
+            <span class="menu-arrow"><i class="fas fa-chevron-right"></i></span>
+        </button>
+        <button class="profile-menu-btn" onclick="rateApp()">
+            <div class="menu-left">
+                <div class="menu-icon orange"><i class="fas fa-star"></i></div>
+                <span>Rate Us</span>
+            </div>
+            <span class="menu-arrow"><i class="fas fa-chevron-right"></i></span>
+        </button>
+        <button class="profile-menu-btn" onclick="logoutUser()">
+            <div class="menu-left">
+                <div class="menu-icon grey"><i class="fas fa-sign-out-alt" style="color: #dc3545;"></i></div>
+                <span style="color: #dc3545;">Logout</span>
+            </div>
+            <span class="menu-arrow"><i class="fas fa-chevron-right"></i></span>
+        </button>
+    </div>
+
+    <!-- EDIT PROFILE MODAL -->
+    <div class="modal fade" id="editProfileModal" tabindex="-1">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header border-0 pb-0">
+                    <h5 class="modal-title fw-bold text-warning">Edit Profile</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body p-4">
+                    <div class="mb-3">
+                        <label class="form-label fw-bold">First Name</label>
+                        <input type="text" class="form-control" id="editFirstName">
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label fw-bold">Last Name</label>
+                        <input type="text" class="form-control" id="editLastName">
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label fw-bold">Email Address</label>
+                        <input type="email" class="form-control" id="editEmail">
+                    </div>
+                </div>
+                <div class="modal-footer border-0 pt-0">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <button type="button" class="btn btn-brand" onclick="saveProfile()">Save Changes</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- SETTINGS MODAL (Change Password) -->
+    <div class="modal fade" id="settingsModal" tabindex="-1">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header border-0 pb-0">
+                    <h5 class="modal-title fw-bold text-warning">Change Password</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body p-4">
+                    <div class="mb-3">
+                        <label class="form-label fw-bold">Current Password</label>
+                        <input type="password" class="form-control" id="currPassword">
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label fw-bold">New Password</label>
+                        <input type="password" class="form-control" id="newPassword">
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label fw-bold">Confirm New Password</label>
+                        <input type="password" class="form-control" id="confirmPassword">
+                    </div>
+                </div>
+                <div class="modal-footer border-0 pt-0">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <button type="button" class="btn btn-brand" onclick="changePassword()">Update Password</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- FOOTER -->
+    <footer>
+        <div class="container">
+            <div class="row g-4">
+                <div class="col-md-4"><h5><i class="fas fa-code text-warning"></i> CodeCraft</h5><p style="font-size: 0.9rem;">Empowering developers and instructors.</p></div>
+                <div class="col-md-4"><h5>Quick Links</h5><ul><li><a href="courses.html">Courses</a></li><li><a href="create-bundle.html">Bundles</a></li><li><a href="dashboard.html">Dashboard</a></li></ul></div>
+                <div class="col-md-4"><h5>Support</h5><ul><li><a href="support.html">Help Center</a></li><li><a href="contact.html">Contact Us</a></li></ul></div>
+            </div>
+            <div class="footer-bottom">&copy; 2026 CodeCraft Tech Company. All rights reserved.</div>
+        </div>
+    </footer>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        // ─── LOAD DATA ────────────────────────────────────────────────
+        document.addEventListener('DOMContentLoaded', function() {
+            const firstName = localStorage.getItem('codecraft_firstName') || 'Oluwadamilare';
+            const lastName = localStorage.getItem('codecraft_lastName') || 'Opeyemi';
+            const email = localStorage.getItem('userEmail') || 'student@codecraft.com';
+
+            document.getElementById('displayName').innerText = `${firstName} ${lastName}`;
+            document.getElementById('displayHandle').innerText = `@${firstName.toLowerCase()}`;
+            
+            document.getElementById('editFirstName').value = firstName;
+            document.getElementById('editLastName').value = lastName;
+            document.getElementById('editEmail').value = email;
+
+            const savedPic = localStorage.getItem('profilePic');
+            if(savedPic) document.getElementById('profileImg').src = savedPic;
+
+            const myCourses = JSON.parse(localStorage.getItem('my_purchased_courses')) || [];
+            document.getElementById('statCourses').innerText = myCourses.length;
+        });
+
+        // ─── 1. PROFILE PICTURE UPLOAD ─────────────────────────────
+        function triggerPicUpload() {
+            document.getElementById('profilePicInput').click();
+        }
+        document.getElementById('profilePicInput').addEventListener('change', function(e) {
+            const file = e.target.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = function(event) {
+                    document.getElementById('profileImg').src = event.target.result;
+                    localStorage.setItem('profilePic', event.target.result);
+                    alert("✅ Profile picture updated successfully!");
+                };
+                reader.readAsDataURL(file);
+            }
+        });
+
+        // ─── 2. EDIT PROFILE ─────────────────────────────────────────
+        function saveProfile() {
+            const firstName = document.getElementById('editFirstName').value.trim();
+            const lastName = document.getElementById('editLastName').value.trim();
+            const email = document.getElementById('editEmail').value.trim();
+
+            if(!firstName || !lastName || !email) { alert("Please fill in all fields."); return; }
+
+            localStorage.setItem('codecraft_firstName', firstName);
+            localStorage.setItem('codecraft_lastName', lastName);
+            localStorage.setItem('userEmail', email);
+
+            document.getElementById('displayName').innerText = `${firstName} ${lastName}`;
+            document.getElementById('displayHandle').innerText = `@${firstName.toLowerCase()}`;
+            
+            const modal = bootstrap.Modal.getInstance(document.getElementById('editProfileModal'));
+            modal.hide();
+            alert("✅ Profile updated successfully!");
+        }
+
+        // ─── 3. CHANGE PASSWORD ──────────────────────────────────────
+        function changePassword() {
+            const current = document.getElementById('currPassword').value;
+            const newPass = document.getElementById('newPassword').value;
+            const confirm = document.getElementById('confirmPassword').value;
+
+            if(!current || !newPass || !confirm) { alert("Please fill in all password fields."); return; }
+            if(newPass !== confirm) { alert("New passwords do not match."); return; }
+            if(newPass.length < 8) { alert("Password must be at least 8 characters."); return; }
+
+            const modal = bootstrap.Modal.getInstance(document.getElementById('settingsModal'));
+            modal.hide();
+            document.getElementById('currPassword').value = '';
+            document.getElementById('newPassword').value = '';
+            document.getElementById('confirmPassword').value = '';
+            alert("✅ Password changed successfully!");
+        }
+
+        // ─── 4. NAVIGATION / ACTIONS ────────────────────────────────
+        function goTo(page) { window.location.href = page; }
+        function comingSoon(feature) { alert(`🚀 "${feature}" feature is coming soon!`); }
+        function rateApp() { alert("⭐ Thank you for rating CodeCraft! (This will open the App Store in the future)."); }
+
+        function logoutUser() {
+            if(confirm("Are you sure you want to log out?")) {
+                localStorage.clear();
+                window.location.href = 'login.html';
+            }
+        }
+    </script>
+</body>
+</html>
