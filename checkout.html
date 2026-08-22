@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>CodeCraft - Checkout</title>
+    <title>CodeCraft - Secure Checkout</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
@@ -25,10 +25,7 @@
         .sidebar-logout-wrap { padding: 15px 20px; border-top: 1px solid #eee; }
         .btn-sidebar-logout { background: var(--brand-orange); color: white; border: none; border-radius: 8px; width: 100%; padding: 12px; font-weight: 600; }
         
-        /* Navbar-specific link styling (Fixed) */
-        .navbar-custom a { color: var(--brand-black); }
-
-        /* --- CHECKOUT PAGE --- */
+        /* Checkout Layout */
         .checkout-container { max-width: 500px; margin: 30px auto; padding: 0 15px; }
         .seerbit-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 20px; }
         .seerbit-logo { font-weight: 800; color: #d32f2f; font-size: 1.2rem; letter-spacing: 1px; }
@@ -49,14 +46,6 @@
         .channel-name { font-weight: 600; color: #222; font-size: 0.95rem; }
         .channel-icon { display: flex; align-items: center; gap: 5px; font-weight: 600; color: #555; }
 
-        .icon-verve { color: #e42a2a; font-weight: bold; }
-        .icon-visa { color: #1a1f71; font-weight: bold; }
-        .icon-mastercard { background: #f79e1b; color: white; padding: 2px 6px; border-radius: 4px; font-weight: bold; font-size: 0.7rem; }
-        .icon-opay { color: #00bfa5; font-weight: 800; font-size: 1.1rem; }
-        .icon-paypal { color: #003087; font-weight: 800; font-size: 1.1rem; }
-        .icon-kuda { color: #0b1b3d; font-weight: 800; font-size: 1.1rem; }
-        .icon-ussd { color: #555; font-weight: 500; font-size: 0.9rem; }
-
         .action-buttons { display: flex; gap: 10px; margin-top: 30px; }
         .btn-change { flex: 1; background: #f1f3f5; border: none; border-radius: 8px; padding: 14px; font-weight: 600; color: #333; transition: 0.2s; }
         .btn-change:hover { background: #e9ecef; }
@@ -64,6 +53,11 @@
         .btn-cancel:hover { background: #fecaca; }
         .btn-pay-now { flex: 2; background: var(--brand-green); color: white; border: none; border-radius: 8px; padding: 14px; font-weight: 700; font-size: 1.05rem; transition: 0.2s; }
         .btn-pay-now:hover { background: #16a34a; }
+        .btn-brand { background: var(--brand-orange); color: white; border-radius: 10px; padding: 12px; font-weight: 600; border: none; }
+        .btn-brand:hover { background: #e05a00; }
+
+        /* Modals */
+        .modal-content { border-radius: 16px; border: none; box-shadow: 0 10px 30px rgba(0,0,0,0.1); }
 
         footer { background: var(--brand-black); color: #ccc; padding: 40px 0 20px; margin-top: auto; }
         footer h5 { color: white; font-weight: 600; }
@@ -71,6 +65,9 @@
         footer ul li a { color: #aaa; text-decoration: none; transition: 0.3s; }
         footer ul li a:hover { color: var(--brand-orange); padding-left: 5px; }
         .footer-bottom { border-top: 1px solid #333; padding-top: 20px; margin-top: 30px; text-align: center; }
+        
+        .floating-bug { position: fixed; bottom: 25px; left: 25px; width: 55px; height: 55px; background: rgba(255, 255, 255, 0.9); backdrop-filter: blur(8px); border-radius: 50%; display: flex; align-items: center; justify-content: center; box-shadow: 0 4px 15px rgba(0,0,0,0.1); cursor: pointer; z-index: 9999; border: 1px solid rgba(255,107,0,0.2); }
+        .floating-bug i { color: #FF6B00; font-size: 22px; }
     </style>
 </head>
 <body>
@@ -105,7 +102,7 @@
                 <a href="courses.html">Courses</a>
                 <a href="create-bundle.html">Bundles</a>
                 <a href="dashboard.html">Dashboard</a>
-                  <a href="profile.html">Profile</a>
+                <a href="profile.html">Profile</a>
                 <a href="#">My Transactions</a>
                 <a href="support.html">Support</a>
                 <a href="#">Affiliate Program</a>
@@ -116,9 +113,8 @@
         </div>
     </div>
 
-    <!-- SEERBIT PAYMENT INTERFACE -->
+    <!-- CHECKOUT INTERFACE -->
     <div class="checkout-container">
-        <!-- Header -->
         <div class="seerbit-header">
             <div class="seerbit-logo">SEERBIT</div>
             <div class="user-info">
@@ -127,13 +123,11 @@
             </div>
         </div>
 
-        <!-- Amount -->
         <div class="amount-display">
             <h1 id="displayPrice">NGN 0.00</h1>
             <p>Fee: NGN59.98</p>
         </div>
 
-        <!-- Channels -->
         <div class="channel-title">Select Payment Channel</div>
         <div class="channel-list" id="channelList">
             <div class="channel-item" onclick="selectChannel(this)">
@@ -156,43 +150,42 @@
                 <span class="channel-icon icon-paypal">PayPal</span>
             </div>
             
-            <!-- EXPERT USSD SECTION -->
+            <!-- USSD Options -->
             <div class="channel-item" onclick="selectChannel(this)" data-ussd="*737#" data-bank="GTBank">
                 <span class="channel-name">GTBank USSD</span>
-                <span class="channel-icon icon-ussd">*737#</span>
+                <span class="channel-icon">*737#</span>
             </div>
             <div class="channel-item" onclick="selectChannel(this)" data-ussd="*894#" data-bank="FirstBank">
                 <span class="channel-name">FirstBank USSD</span>
-                <span class="channel-icon icon-ussd">*894#</span>
+                <span class="channel-icon">*894#</span>
             </div>
             <div class="channel-item" onclick="selectChannel(this)" data-ussd="*901#" data-bank="Access Bank">
                 <span class="channel-name">Access Bank USSD</span>
-                <span class="channel-icon icon-ussd">*901#</span>
+                <span class="channel-icon">*901#</span>
             </div>
             <div class="channel-item" onclick="selectChannel(this)" data-ussd="*966#" data-bank="Zenith Bank">
                 <span class="channel-name">Zenith Bank USSD</span>
-                <span class="channel-icon icon-ussd">*966#</span>
+                <span class="channel-icon">*966#</span>
             </div>
             <div class="channel-item" onclick="selectChannel(this)" data-ussd="*919#" data-bank="UBA">
                 <span class="channel-name">UBA USSD</span>
-                <span class="channel-icon icon-ussd">*919#</span>
+                <span class="channel-icon">*919#</span>
             </div>
             <div class="channel-item" onclick="selectChannel(this)" data-ussd="*955#" data-bank="OPay">
                 <span class="channel-name">OPay USSD</span>
-                <span class="channel-icon icon-ussd">*955#</span>
+                <span class="channel-icon">*955#</span>
             </div>
             <div class="channel-item" onclick="selectChannel(this)" data-ussd="*888#" data-bank="PalmPay">
                 <span class="channel-name">PalmPay USSD</span>
-                <span class="channel-icon icon-ussd">*888#</span>
+                <span class="channel-icon">*888#</span>
             </div>
 
             <div class="channel-item" onclick="selectChannel(this)">
                 <span class="channel-name">Kuda Bank</span>
-                <span class="channel-icon icon-kuda">Kuda</span>
+                <span class="channel-icon">Kuda</span>
             </div>
         </div>
 
-        <!-- Action Buttons -->
         <div class="action-buttons">
             <button class="btn-change" onclick="goBackToSummary()">Change Payment Method</button>
             <button class="btn-pay-now" onclick="processPayment()">Pay Now</button>
@@ -201,138 +194,119 @@
             <button class="btn-cancel w-100" onclick="cancelPayment()">Cancel Payment</button>
         </div>
     </div>
-<!-- BANK TRANSFER MODAL -->
-<div class="modal fade" id="transferModal" tabindex="-1" aria-hidden="true">
-    <div class="modal-dialog modal-dialog-centered">
-        <div class="modal-content" style="border-radius: 16px; border: none; box-shadow: 0 10px 30px rgba(0,0,0,0.1);">
-            <div class="modal-header border-0 pb-0">
-                <h5 class="modal-title fw-bold" style="color: var(--brand-black);">Bank Transfer</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-            </div>
-            <div class="modal-body p-4 text-center">
-                <p class="text-muted mb-3">Transfer the exact amount to the account below.</p>
-                
-                <div style="background: #f1f3f5; border-radius: 12px; padding: 20px; margin: 15px 0; border: 1px solid #e9ecef;">
-                    <div style="margin-bottom: 10px;">
-                        <small style="color: #888; display: block;">Account Name</small>
-                        <strong style="font-size: 1.1rem; color: var(--brand-black);">Oluwadamilare Opeyemi Emmanuel</strong>
-                    </div>
-                    <div style="margin-bottom: 10px;">
-                        <small style="color: #888; display: block;">Bank</small>
-                        <strong style="font-size: 1.1rem; color: var(--brand-black);">Access Bank</strong>
-                    </div>
-                    <div>
-                        <small style="color: #888; display: block;">Account Number</small>
-                        <div style="display: flex; justify-content: center; align-items: center; gap: 10px;">
-                            <strong id="accountNumber" style="font-size: 1.5rem; letter-spacing: 2px; color: var(--brand-orange);">1504020994</strong>
-                            <button onclick="copyAccountNumber()" style="border: none; background: #ddd; border-radius: 50px; padding: 5px 12px; font-size: 0.8rem; font-weight: 600; cursor: pointer;">Copy</button>
+
+    <!-- TRANSFER MODAL -->
+    <div class="modal fade" id="transferModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header border-0 pb-0">
+                    <h5 class="modal-title fw-bold">Bank Transfer</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body p-4 text-center">
+                    <p class="text-muted mb-3">Transfer the exact amount to the account below.</p>
+                    <div style="background: #f1f3f5; border-radius: 12px; padding: 20px; margin: 15px 0; border: 1px solid #e9ecef;">
+                        <div style="margin-bottom: 10px;">
+                            <small style="color: #888; display: block;">Account Name</small>
+                            <strong style="font-size: 1.1rem;">Oluwadamilare Opeyemi Emmanuel</strong>
+                        </div>
+                        <div style="margin-bottom: 10px;">
+                            <small style="color: #888; display: block;">Bank</small>
+                            <strong style="font-size: 1.1rem;">Access Bank</strong>
+                        </div>
+                        <div>
+                            <small style="color: #888; display: block;">Account Number</small>
+                            <div style="display: flex; justify-content: center; align-items: center; gap: 10px;">
+                                <strong id="accountNumber" style="font-size: 1.5rem; letter-spacing: 2px; color: var(--brand-orange);">1504020994</strong>
+                                <button onclick="copyAccountNumber()" style="border: none; background: #ddd; border-radius: 50px; padding: 5px 12px; font-size: 0.8rem; font-weight: 600; cursor: pointer;">Copy</button>
+                            </div>
                         </div>
                     </div>
-                </div>
-                
-                <div style="background: #fff3cd; border: 1px solid #ffc107; border-radius: 8px; padding: 12px; text-align: left; margin-top: 10px;">
-                    <small style="color: #856404; font-weight: 600;">📝 Instructions:</small>
-                    <ul style="font-size: 0.85rem; color: #856404; margin-top: 5px; padding-left: 20px;">
-                        <li>Send <strong id="transferPriceDisplay">NGN 3,999.00</strong> to the account above.</li>
-                        <li>After successful transfer, return to this page and click <strong>"I Have Paid"</strong>.</li>
-                    </ul>
-                </div>
+                    
+                    <div style="background: #fff3cd; border: 1px solid #ffc107; border-radius: 8px; padding: 12px; text-align: left; margin-top: 10px;">
+                        <small style="color: #856404; font-weight: 600;">📝 Instructions:</small>
+                        <ul style="font-size: 0.85rem; color: #856404; margin-top: 5px; padding-left: 20px;">
+                            <li>Send <strong id="transferPriceDisplay">NGN 0.00</strong> to the account above.</li>
+                            <li>After successful transfer, enter the Transaction Reference and click <strong>"Verify & Complete"</strong>.</li>
+                        </ul>
+                    </div>
 
-                <!-- ✅ NEW: Transaction Reference Input -->
-                <div class="mb-3 mt-3 text-start">
-                    <label class="fw-bold small text-muted">Transaction Reference / Bank Ref:</label>
-                    <input type="text" class="form-control" id="transferRef" placeholder="Enter your bank transaction ref" required>
-                </div>
+                    <div class="mb-3 mt-3 text-start">
+                        <label class="fw-bold small text-muted">Transaction Reference / Bank Ref:</label>
+                        <input type="text" class="form-control" id="transferRef" placeholder="Enter your bank transaction ref" required>
+                    </div>
 
-                <div class="d-flex gap-2 mt-3">
-                    <button class="btn btn-outline-secondary w-50" data-bs-dismiss="modal" style="border-radius: 10px;">Cancel</button>
-                    <button class="btn btn-brand w-50" onclick="confirmTransfer()" style="border-radius: 10px;">I Have Paid</button>
+                    <div class="d-flex gap-2 mt-3">
+                        <button class="btn btn-outline-secondary w-50" data-bs-dismiss="modal" style="border-radius: 10px;">Cancel</button>
+                        <button class="btn btn-brand w-50" onclick="confirmTransfer()" style="border-radius: 10px;">Verify & Complete</button>
+                    </div>
                 </div>
             </div>
         </div>
     </div>
-</div>
-  <!-- USSD PAYMENT MODAL (Updated with Access Bank Details) -->
-<div class="modal fade" id="ussdModal" tabindex="-1" aria-hidden="true">
-    <div class="modal-dialog modal-dialog-centered">
-        <div class="modal-content" style="border-radius: 16px; border: none; box-shadow: 0 10px 30px rgba(0,0,0,0.1);">
-            <div class="modal-header border-0 pb-0">
-                <h5 class="modal-title fw-bold" style="color: var(--brand-black);">USSD Payment</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-            </div>
-            <div class="modal-body p-4 text-center">
-                <p class="text-muted mb-3">Dial the code below on your phone to complete payment.</p>
-                
-                <div style="background: #f1f3f5; border-radius: 12px; padding: 20px; margin: 15px 0; border: 1px solid #e9ecef; position: relative;">
-                    <h2 id="ussdDisplayCode" style="font-weight: 800; color: var(--brand-black); font-size: 2.5rem; letter-spacing: 2px;">*737#</h2>
-                    <small id="ussdBankName" style="color: #666; font-weight: 600; display: block; margin-top: -10px;">GTBank</small>
-                    <button onclick="copyUSSD()" style="position: absolute; top: 10px; right: 10px; border: none; background: #eee; border-radius: 50px; padding: 5px 12px; font-size: 0.8rem; font-weight: 600; cursor: pointer;">Copy</button>
-                </div>
-                
-                <!-- ✅ NEW SECTION: Recipient Account Details -->
-                <div style="background: #e6f7ff; border: 1px solid #91d5ff; border-radius: 8px; padding: 15px; text-align: left; margin-top: 10px;">
-                    <small style="color: #0050b3; font-weight: 600; display: block; margin-bottom: 5px;">🏦 Transfer to:</small>
-                    <div style="display:flex; justify-content:space-between; font-size: 0.9rem; margin-bottom: 5px;">
-                        <span style="color: #666;">Bank:</span>
-                        <strong id="ussdTargetBank" style="color: var(--brand-black);">Access Bank</strong>
-                    </div>
-                    <div style="display:flex; justify-content:space-between; font-size: 0.9rem; margin-bottom: 5px;">
-                        <span style="color: #666;">Account Name:</span>
-                        <strong style="color: var(--brand-black);">Oluwadamilare Opeyemi Emmanuel</strong>
-                    </div>
-                    <div style="display:flex; justify-content:space-between; font-size: 0.9rem;">
-                        <span style="color: #666;">Account Number:</span>
-                        <strong id="ussdTargetAccount" style="color: var(--brand-orange); font-size: 1.1rem;">1504020994</strong>
-                    </div>
-                </div>
-                
-                <!-- Instructions -->
-                <div style="background: #fff3cd; border: 1px solid #ffc107; border-radius: 8px; padding: 12px; text-align: left; margin-top: 10px;">
-                    <small style="color: #856404; font-weight: 600;">📝 Instructions:</small>
-                    <ul style="font-size: 0.85rem; color: #856404; margin-top: 5px; padding-left: 20px;">
-                        <li>Dial the USSD code above on your registered bank phone number.</li>
-                        <li>When prompted, enter the <strong>Account Number</strong> listed above.</li>
-                        <li>Follow the prompts to transfer <strong id="ussdDisplayPrice">NGN 3,999.00</strong>.</li>
-                        <li>After successful payment, return to this page and click <strong>"I Have Paid"</strong>.</li>
-                    </ul>
-                </div>
 
-                <!-- ✅ NEW: Transaction Reference Input -->
-                <div class="mb-3 mt-3 text-start">
-                    <label class="fw-bold small text-muted">Transaction Reference / Bank Ref:</label>
-                    <input type="text" class="form-control" id="ussdRef" placeholder="Enter your bank transaction ref" required>
+    <!-- USSD MODAL -->
+    <div class="modal fade" id="ussdModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header border-0 pb-0">
+                    <h5 class="modal-title fw-bold">USSD Payment</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
                 </div>
+                <div class="modal-body p-4 text-center">
+                    <p class="text-muted mb-3">Dial the code below on your phone to complete payment.</p>
+                    <div style="background: #f1f3f5; border-radius: 12px; padding: 20px; margin: 15px 0; border: 1px solid #e9ecef;">
+                        <h2 id="ussdDisplayCode" style="font-weight: 800; font-size: 2.5rem; letter-spacing: 2px;">*737#</h2>
+                        <small id="ussdBankName" style="color: #666; font-weight: 600; display: block; margin-top: -10px;">GTBank</small>
+                        <button onclick="copyUSSD()" style="border: none; background: #eee; border-radius: 50px; padding: 5px 12px; font-size: 0.8rem; font-weight: 600; cursor: pointer;">Copy</button>
+                    </div>
+                    
+                    <div style="background: #e6f7ff; border: 1px solid #91d5ff; border-radius: 8px; padding: 15px; text-align: left; margin-top: 10px;">
+                        <small style="color: #0050b3; font-weight: 600; display: block; margin-bottom: 5px;">🏦 Transfer to:</small>
+                        <div style="display:flex; justify-content:space-between; font-size: 0.9rem; margin-bottom: 5px;">
+                            <span style="color: #666;">Bank:</span>
+                            <strong id="ussdTargetBank">Access Bank </strong>
+                        </div>
+                        <div style="display:flex; justify-content:space-between; font-size: 0.9rem; margin-bottom: 5px;">
+                            <span style="color: #666;">Account Name:</span>
+                            <strong>Oluwadamilare Opeyemi Emmanuel</strong>
+                        </div>
+                        <div style="display:flex; justify-content:space-between; font-size: 0.9rem;">
+                            <span style="color: #666;">Account Number:</span>
+                            <strong id="ussdTargetAccount" style="color: var(--brand-orange); font-size: 1.1rem;">1504020994</strong>
+                        </div>
+                    </div>
+                    
+                    <div style="background: #fff3cd; border: 1px solid #ffc107; border-radius: 8px; padding: 12px; text-align: left; margin-top: 10px;">
+                        <small style="color: #856404; font-weight: 600;">📝 Instructions:</small>
+                        <ul style="font-size: 0.85rem; color: #856404; margin-top: 5px; padding-left: 20px;">
+                            <li>Dial the USSD code above on your registered bank phone number.</li>
+                            <li>When prompted, enter the <strong>Account Number</strong> listed above.</li>
+                            <li>Follow the prompts to transfer <strong id="ussdDisplayPrice">NGN 0.00</strong>.</li>
+                            <li>After successful payment, enter the Transaction Reference and click <strong>"Verify & Complete"</strong>.</li>
+                        </ul>
+                    </div>
 
-                <div class="d-flex gap-2 mt-3">
-                    <button class="btn btn-outline-secondary w-50" data-bs-dismiss="modal" style="border-radius: 10px;">Cancel</button>
-                    <button class="btn btn-brand w-50" onclick="confirmUSSD()" style="border-radius: 10px;">I Have Paid</button>
+                    <div class="mb-3 mt-3 text-start">
+                        <label class="fw-bold small text-muted">Transaction Reference / Bank Ref:</label>
+                        <input type="text" class="form-control" id="ussdRef" placeholder="Enter your bank transaction ref" required>
+                    </div>
+
+                    <div class="d-flex gap-2 mt-3">
+                        <button class="btn btn-outline-secondary w-50" data-bs-dismiss="modal" style="border-radius: 10px;">Cancel</button>
+                        <button class="btn btn-brand w-50" onclick="confirmUSSD()" style="border-radius: 10px;">Verify & Complete</button>
+                    </div>
                 </div>
             </div>
         </div>
     </div>
-</div>
+
     <!-- FLOATING BUG ICON -->
-    <div id="reportBugBtn" style="
-        position: fixed; 
-        bottom: 25px; 
-        left: 25px; 
-        width: 55px; 
-        height: 55px; 
-        background: rgba(255, 255, 255, 0.9); 
-        backdrop-filter: blur(8px);
-        border-radius: 50%; 
-        display: flex; 
-        align-items: center; 
-        justify-content: center; 
-        box-shadow: 0 4px 15px rgba(0,0,0,0.1); 
-        cursor: pointer; 
-        z-index: 9999;
-        transition: all 0.3s ease;
-        border: 1px solid rgba(255,107,0,0.2);
-    " onclick="openReportPage()">
-        <i class="fas fa-bug" style="color: #FF6B00; font-size: 22px;"></i>
+    <div class="floating-bug" onclick="openReportPage()">
+        <i class="fas fa-bug"></i>
     </div>
 
+  
     <!-- FOOTER -->
     <footer>
         <div class="container">
@@ -341,36 +315,34 @@
                     <h5><i class="fas fa-code text-warning"></i> CodeCraft</h5>
                     <p style="font-size: 0.9rem;">Empowering developers and instructors.</p>
                     <div class="social-icons mt-3">
-                        <a href="https://www.facebook.com/profile.php?id=100084730695859" target="_blank" rel="noopener noreferrer"><i class="fab fa-facebook-f"></i></a>
-                        <a href="https://www.tiktok.com/@codecraft995" target="_blank" rel="noopener noreferrer"><i class="fab fa-tiktok"></i></a>
-                        <a href="https://www.instagram.com/codecraft331/" target="_blank" rel="noopener noreferrer"><i class="fab fa-instagram"></i></a>
-                        <a href="https://github.com/immanuel779" target="_blank" rel="noopener noreferrer"><i class="fab fa-github"></i></a>
+                        <a href="#" style="color: #aaa; font-size: 1.2rem;"><i class="fab fa-facebook-f"></i></a>
+                        <a href="#" style="color: #aaa; font-size: 1.2rem;"><i class="fab fa-twitter"></i></a>
+                        <a href="#" style="color: #aaa; font-size: 1.2rem;"><i class="fab fa-instagram"></i></a>
+                        <a href="#" style="color: #aaa; font-size: 1.2rem;"><i class="fab fa-github"></i></a>
                     </div>
                 </div>
                 <div class="col-md-3">
                     <h5>Products</h5>
                     <ul>
-                        <li><a href="courses.html">Courses</a></li>
-                        <li><a href="create-bundle.html">Bundles</a></li>
-                        <li><a href="mock-exams.html">Mock Exams</a></li>
-                        <li><a href="instructor-tools.html">Instructor Tools</a></li>
+                        <li><a href="#">Courses</a></li>
+                        <li><a href="#">Bundles</a></li>
+                        <li><a href="#">Mock Exams</a></li>
                     </ul>
                 </div>
                 <div class="col-md-3">
                     <h5>Support</h5>
                     <ul>
-                        <li><a href="support.html">Help Center</a></li>
-                        <li><a href="contact.html">Contact Us</a></li>
-                        <li><a href="https://whatsapp.com/channel/0029VbAYte94o7qG2Dfrlt3D" target="_blank">Community</a></li>
-                        <li><a href="faq.html">FAQs</a></li>
+                        <li><a href="#">Help Center</a></li>
+                        <li><a href="#">Contact Us</a></li>
+                        <li><a href="#">FAQs</a></li>
                     </ul>
                 </div>
-                   <div class="col-md-3">
-                       <h5>Legal</h5>
+                <div class="col-md-3">
+                    <h5>Legal</h5>
                     <ul>
-                        <li><a href="legal.html">Privacy Policy</a></li>
-                        <li><a href="legal.html">Terms of Service</a></li>
-                        <li><a href="legal.html">Cookie Policy</a></li>
+                        <li><a href="#">Privacy Policy</a></li>
+                        <li><a href="#">Terms of Service</a></li>
+                        <li><a href="#">Cookie Policy</a></li>
                     </ul>
                 </div>
             </div>
@@ -380,199 +352,304 @@
         </div>
     </footer>
 
-    <!-- 🔥 PAYSTACK SCRIPT -->
+    <!-- SCRIPTS -->
     <script src="https://js.paystack.co/v1/inline.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-    <!-- EmailJS -->
     <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/@emailjs/browser@3/dist/email.min.js"></script>
     <script type="text/javascript">
-       (function(){
-          emailjs.init("ETHPt49w1i1bym3oO");
-       })();
+       (function(){ emailjs.init("ETHPt49w1i1bym3oO"); })();
     </script>
-
 <script>
-    // ─── CONFIGURATION ──────────────────────────────────────────────
-    const API_URL = "https://codecraft-tech-academy-backend.onrender.com"; // Your Render URL
+        // ─── CONFIGURATION ──────────────────────────────────────────────
+        const API_URL = "https://codecraft-tech-academy-backend.onrender.com"; 
 
-    // 1. PROTECT & LOAD DATA
-    document.addEventListener('DOMContentLoaded', function() {
-        const firstName = localStorage.getItem('codecraft_firstName');
-        if (!firstName) { window.location.href = 'login.html'; }
-        
-        const price = localStorage.getItem('checkoutPrice');
-        if (price) {
-            document.getElementById('displayPrice').innerText = `NGN ${price.replace('₦', '')}`;
+        // 1. LOAD DATA (No more "Session Expired" redirect!)
+        document.addEventListener('DOMContentLoaded', function() {
+            // Read the email directly from the page (like in your screenshot)
+            const pageEmail = document.getElementById('userEmail')?.innerText || "";
+            const pageName = document.getElementById('userFullName')?.innerText || "";
+
+            // Save them to localStorage just in case
+            if (pageEmail) localStorage.setItem('userEmail', pageEmail);
+            if (pageName) localStorage.setItem('codecraft_firstName', pageName.split(' ')[0]);
+
+            // Get the checkout price
+            const price = localStorage.getItem('checkoutPrice');
+            if (price) {
+                const cleanPrice = price.replace(/[^0-9.]/g, '');
+                document.getElementById('displayPrice').innerText = `NGN ${cleanPrice}`;
+            }
+            
+            const firstChannel = document.querySelector('.channel-item');
+            if(firstChannel) selectChannel(firstChannel);
+        });
+
+        function logoutUser() { localStorage.clear(); window.location.href = 'index.html'; }
+
+        function selectChannel(element) {
+            document.querySelectorAll('.channel-item').forEach(el => el.classList.remove('selected'));
+            element.classList.add('selected');
         }
-        
-        const firstChannel = document.querySelector('.channel-item');
-        if(firstChannel) selectChannel(firstChannel);
-    });
 
-    function logoutUser() { localStorage.clear(); window.location.href = 'index.html'; }
+        function goBackToSummary() { window.history.back(); }
 
-    function selectChannel(element) {
-        document.querySelectorAll('.channel-item').forEach(el => el.classList.remove('selected'));
-        element.classList.add('selected');
-    }
+        function cancelPayment() {
+            if(confirm("Are you sure you want to cancel this payment?")) {
+                localStorage.removeItem('checkoutPrice');
+                localStorage.removeItem('checkoutCourseTitle');
+                window.location.href = 'dashboard.html';
+            }
+        }
 
-    function goBackToSummary() { window.history.back(); }
+        // --- 4. PROCESS PAYMENT (Uses the email from the page) ---
+        function processPayment() {
+            const selectedChannel = document.querySelector('.channel-item.selected');
+            if (!selectedChannel) { alert("Please select a payment channel."); return; }
 
-    function cancelPayment() {
-        if(confirm("Are you sure you want to cancel this payment?")) {
+            const channelName = selectedChannel.querySelector('.channel-name').innerText;
+            
+            // Get price
+            const rawPrice = document.getElementById('displayPrice').innerText.replace('NGN ', '');
+            const price = parseFloat(rawPrice.replace(/,/g, ''));
+
+            // GET EMAIL FROM DOM OR LOCALSTORAGE (No redirect!)
+            const email = localStorage.getItem('userEmail') || document.getElementById('userEmail')?.innerText || "";
+            const firstName = localStorage.getItem('codecraft_firstName') || "Student";
+
+            if (!email) { alert("Please enter a valid email."); return; }
+
+            if (isNaN(price) || price <= 0) {
+                alert("⚠️ Error: Invalid price detected. Please go back and try again.");
+                return;
+            }
+
+            // Bank Transfer
+            if (channelName === "Bank Transfer") {
+                showTransferModal(rawPrice); 
+                return; 
+            }
+
+            // USSD
+            if (channelName.includes("USSD")) {
+                const ussdCode = selectedChannel.getAttribute('data-ussd');
+                const bankName = selectedChannel.getAttribute('data-bank');
+                showUSSDModal(ussdCode, bankName, rawPrice);
+                return; 
+            }
+
+            // --- PAYSTACK ---
+            if (typeof PaystackPop === 'undefined') {
+                alert("❌ Paystack gateway is not loading. Check your internet connection or ad-blocker.");
+                return;
+            }
+
+            try {
+                const handler = PaystackPop.setup({
+                    key: 'pk_live_279c98242a3ed48cf4a5e266005fe76d53db0ecb', 
+                    email: email, 
+                    amount: Math.round(price * 100),
+                    currency: 'NGN',
+                    ref: 'CODE_' + Date.now(),
+                    metadata: { custom_fields: [ { display_name: "Student Name", variable_name: "student_name", value: firstName } ] },
+                    callback: function(response) {
+                        alert(`✅ Payment successful! Ref: ${response.reference}`);
+                        finalizePurchase(`NGN ${price}`, `Paystack - ${channelName}`, response.reference);
+                    },
+                    onClose: function() { alert('Payment window closed.'); }
+                });
+                handler.openIframe();
+            } catch (error) {
+                alert("❌ Error initializing Paystack: " + error.message);
+            }
+        }
+
+        // --- 5. TRANSFER MODAL ---
+        function showTransferModal(price) {
+            document.getElementById('transferPriceDisplay').innerText = price;
+            const myModal = new bootstrap.Modal(document.getElementById('transferModal'));
+            myModal.show();
+        }
+
+        function copyAccountNumber() {
+            const account = document.getElementById('accountNumber').innerText;
+            if (navigator.clipboard && window.isSecureContext) {
+                navigator.clipboard.writeText(account).then(() => alert(`✅ Account number ${account} copied!`));
+            } else {
+                const textArea = document.createElement("textarea");
+                textArea.value = account;
+                document.body.appendChild(textArea);
+                textArea.select();
+                document.execCommand("copy");
+                document.body.removeChild(textArea);
+                alert(`✅ Account number ${account} copied!`);
+            }
+        }
+
+        async function confirmTransfer() {
+            const modalEl = document.getElementById('transferModal');
+            const modal = bootstrap.Modal.getInstance(modalEl);
+            const refInput = document.getElementById('transferRef').value.trim();
+
+            if (!refInput) {
+                alert("Please enter your Bank Transaction Reference number!");
+                return;
+            }
+
+            const btn = document.querySelector('#transferModal .btn-brand');
+            const originalText = btn.innerText;
+            btn.innerText = "Verifying Payment...";
+            btn.disabled = true;
+
+            const verified = await verifyTransaction("Bank Transfer", refInput);
+
+            btn.innerText = originalText;
+            btn.disabled = false;
+
+            if (verified) {
+                modal.hide();
+                finalizePurchase(document.getElementById('displayPrice').innerText, "Bank Transfer", refInput);
+            } else {
+                alert("❌ Payment NOT found. Please confirm you transferred the exact amount and try again.");
+            }
+        }
+
+        // --- 6. USSD MODAL ---
+        function showUSSDModal(code, bank, price) {
+            document.getElementById('ussdDisplayCode').innerText = code;
+            document.getElementById('ussdBankName').innerText = bank;
+            document.getElementById('ussdTargetBank').innerText = "Access Bank";
+            document.getElementById('ussdDisplayPrice').innerText = price;
+            const myModal = new bootstrap.Modal(document.getElementById('ussdModal'));
+            myModal.show();
+        }
+
+        function copyUSSD() {
+            const code = document.getElementById('ussdDisplayCode').innerText;
+            if (navigator.clipboard && window.isSecureContext) {
+                navigator.clipboard.writeText(code).then(() => alert(`✅ USSD code ${code} copied!`));
+            } else {
+                const textArea = document.createElement("textarea");
+                textArea.value = code;
+                document.body.appendChild(textArea);
+                textArea.select();
+                document.execCommand("copy");
+                document.body.removeChild(textArea);
+                alert(`✅ USSD code ${code} copied!`);
+            }
+        }
+
+        async function confirmUSSD() {
+            const modalEl = document.getElementById('ussdModal');
+            const modal = bootstrap.Modal.getInstance(modalEl);
+            const refInput = document.getElementById('ussdRef').value.trim();
+
+            if (!refInput) {
+                alert("Please enter your Bank Transaction Reference number!");
+                return;
+            }
+
+            const btn = document.querySelector('#ussdModal .btn-brand');
+            const originalText = btn.innerText;
+            btn.innerText = "Verifying Payment...";
+            btn.disabled = true;
+
+            const verified = await verifyTransaction("USSD", refInput);
+
+            btn.innerText = originalText;
+            btn.disabled = false;
+
+            if (verified) {
+                modal.hide();
+                finalizePurchase(document.getElementById('displayPrice').innerText, "USSD", refInput);
+            } else {
+                alert("❌ Payment NOT found. Please confirm you dialed the USSD and transferred the exact amount.");
+            }
+        }
+
+        async function verifyTransaction(method, ref) {
+            try {
+                const userEmail = localStorage.getItem('userEmail') || document.getElementById('userEmail')?.innerText || "";
+                const amount = document.getElementById('displayPrice').innerText.replace('NGN ', '').replace(/,/g, '');
+                
+                const res = await fetch(`${API_URL}/api/verify-payment`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ 
+                        method: method, 
+                        ref: ref, 
+                        email: userEmail,
+                        amount: amount
+                    })
+                });
+
+                if (res.status === 404) {
+                    alert("🛑 Backend Error: Your backend guy hasn't built the `/api/verify-payment` endpoint yet!");
+                    return false;
+                }
+
+                const data = await res.json();
+                
+                if (res.ok && data.status === 'success') {
+                    return true;
+                } else {
+                    console.log("Verification failed:", data.message);
+                    return false;
+                }
+            } catch (error) {
+                console.error("Network error during verification:", error);
+                alert("⚠️ Could not reach server to verify.");
+                return false;
+            }
+        }
+
+        // --- 7. FINALIZE PURCHASE (No forced logout) ---
+        function finalizePurchase(price, method, ref) {
+            const firstName = localStorage.getItem('codecraft_firstName') || "Student";
+            const userEmail = localStorage.getItem('userEmail') || document.getElementById('userEmail')?.innerText || "";
+            const courseId = localStorage.getItem('selectedCourseId');
+            const courseTitle = localStorage.getItem('checkoutCourseTitle') || "Your Purchased Course";
+
+            const telegramLinks = {
+                "1": "https://t.me/+hKfv4J-cnak1MzI8",
+                "2": "https://t.me/+fzo8UoeFpCE5Nzhk",
+                "3": "https://t.me/+p3-p-kvEtHs1MmE0",
+                "4": "https://t.me/+Fpbx_3waBPk1OWQ0",
+                "5": "https://t.me/+ZOCnLDEYJoFmMTY0",
+                "6": "https://t.me/+BIz81jax9z80ZmU0",
+                "7": "https://t.me/+KES0UWKmI1Y1ODQ0",
+                "8": "https://t.me/+wGjA3T53EJAxMmZk",
+                "9": "https://t.me/+iMO5GuZYBr1jMzJk",
+                "10": "https://t.me/+BArr4E7ylc4yMjZk"
+            };
+
+            let telegramLink = telegramLinks[courseId] || "https://t.me/+XNTisaHc7KFhNDNk";
+
+            let myCourses = JSON.parse(localStorage.getItem('my_purchased_courses')) || [];
+            myCourses.push({
+                id: courseId,
+                title: courseTitle,
+                price: price,
+                date: new Date().toLocaleDateString(),
+                method: method,
+                ref: ref, 
+                telegramLink: telegramLink
+            });
+            localStorage.setItem('my_purchased_courses', JSON.stringify(myCourses));
+
+            window.open(telegramLink, '_blank');
+
+            emailjs.send("service_humau1h", "template_367ligo", {
+                email: userEmail,
+                course_name: courseTitle,
+                access_link: telegramLink
+            }).then(() => {}).catch(() => {});
+
             localStorage.removeItem('checkoutPrice');
             localStorage.removeItem('checkoutCourseTitle');
-            window.location.href = 'dashboard.html';
-        }
-    }
-
-    // --- 4. PROCESS PAYMENT ---
-    function processPayment() {
-        const selectedChannel = document.querySelector('.channel-item.selected');
-        if (!selectedChannel) { alert("Please select a payment channel."); return; }
-
-        const channelName = selectedChannel.querySelector('.channel-name').innerText;
-        const price = document.getElementById('displayPrice').innerText.replace('NGN ', '').replace(',', '');
-        const email = localStorage.getItem('userEmail') || "test@student.com";
-        const firstName = localStorage.getItem('codecraft_firstName');
-
-        // Bank Transfer
-        if (channelName === "Bank Transfer") {
-            showTransferModal(price);
-            return; 
+            setTimeout(() => { window.location.href = 'dashboard.html'; }, 3000);
         }
 
-        // USSD
-        if (channelName.includes("USSD")) {
-            const ussdCode = selectedChannel.getAttribute('data-ussd');
-            const bankName = selectedChannel.getAttribute('data-bank');
-            showUSSDModal(ussdCode, bankName, price);
-            return; 
-        }
-
-        // Paystack
-        const handler = PaystackPop.setup({
-            key: 'pk_live_279c98242a3ed48cf4a5e266005fe76d53db0ecb',
-            email: email,
-            amount: Math.round(parseFloat(price) * 100),
-            currency: 'NGN',
-            ref: 'CODE_' + Date.now(),
-            metadata: { custom_fields: [ { display_name: "Student Name", variable_name: "student_name", value: firstName } ] },
-            callback: function(response) {
-                alert(`✅ Payment successful! Ref: ${response.reference}`);
-                // Paystack automatically verifies, so no manual ref needed
-                finalizePurchase(document.getElementById('displayPrice').innerText, `Paystack - ${channelName}`, null);
-            },
-            onClose: function() { alert('Payment window closed.'); }
-        });
-        handler.openIframe();
-    }
-
-    // --- 5. TRANSFER MODAL ---
-    function showTransferModal(price) {
-        document.getElementById('transferPriceDisplay').innerText = price;
-        const myModal = new bootstrap.Modal(document.getElementById('transferModal'));
-        myModal.show();
-    }
-
-    function copyAccountNumber() {
-        const account = document.getElementById('accountNumber').innerText;
-        navigator.clipboard.writeText(account).then(() => alert(`✅ Account number ${account} copied!`));
-    }
-
-    // ✅ UPDATED: Now requires Transaction Reference
-    function confirmTransfer() {
-        const modalEl = document.getElementById('transferModal');
-        const modal = bootstrap.Modal.getInstance(modalEl);
-        const refInput = document.getElementById('transferRef').value.trim();
-
-        if (!refInput) {
-            alert("Please enter your Bank Transaction Reference number!");
-            return;
-        }
-
-        modal.hide();
-        finalizePurchase(document.getElementById('displayPrice').innerText, "Bank Transfer", refInput);
-    }
-
-    // --- 6. USSD MODAL ---
-    function showUSSDModal(code, bank, price) {
-        document.getElementById('ussdDisplayCode').innerText = code;
-        document.getElementById('ussdBankName').innerText = bank;
-        document.getElementById('ussdTargetBank').innerText = "Access Bank";
-        document.getElementById('ussdDisplayPrice').innerText = price;
-        const myModal = new bootstrap.Modal(document.getElementById('ussdModal'));
-        myModal.show();
-    }
-
-    function copyUSSD() {
-        const code = document.getElementById('ussdDisplayCode').innerText;
-        navigator.clipboard.writeText(code).then(() => alert(`✅ USSD code ${code} copied!`));
-    }
-
-    // ✅ UPDATED: Now requires Transaction Reference
-    function confirmUSSD() {
-        const modalEl = document.getElementById('ussdModal');
-        const modal = bootstrap.Modal.getInstance(modalEl);
-        const refInput = document.getElementById('ussdRef').value.trim();
-
-        if (!refInput) {
-            alert("Please enter your Bank Transaction Reference number!");
-            return;
-        }
-
-        modal.hide();
-        finalizePurchase(document.getElementById('displayPrice').innerText, "USSD", refInput);
-    }
-
-    // --- 7. THE BRAIN (Save to Dashboard + Telegram + Email) ---
-    function finalizePurchase(price, method, ref) {
-        const firstName = localStorage.getItem('codecraft_firstName');
-        const userEmail = localStorage.getItem('userEmail') || "test@student.com";
-        const courseId = localStorage.getItem('selectedCourseId');
-        const courseTitle = localStorage.getItem('checkoutCourseTitle') || "Your Purchased Course";
-
-        const telegramLinks = {
-            "1": "https://t.me/+hKfv4J-cnak1MzI8",
-            "2": "https://t.me/+fzo8UoeFpCE5Nzhk",
-            "3": "https://t.me/+p3-p-kvEtHs1MmE0",
-            "4": "https://t.me/+Fpbx_3waBPk1OWQ0",
-            "5": "https://t.me/+ZOCnLDEYJoFmMTY0",
-            "6": "https://t.me/+BIz81jax9z80ZmU0",
-            "7": "https://t.me/+KES0UWKmI1Y1ODQ0",
-            "8": "https://t.me/+wGjA3T53EJAxMmZk",
-            "9": "https://t.me/+iMO5GuZYBr1jMzJk",
-            "10": "https://t.me/+BArr4E7ylc4yMjZk"
-        };
-
-        let telegramLink = telegramLinks[courseId] || "https://t.me/+XNTisaHc7KFhNDNk";
-
-        let myCourses = JSON.parse(localStorage.getItem('my_purchased_courses')) || [];
-        myCourses.push({
-            id: courseId,
-            title: courseTitle,
-            price: document.getElementById('displayPrice').innerText,
-            date: new Date().toLocaleDateString(),
-            method: method,
-            ref: ref || "N/A", // Save the reference number for manual verification
-            telegramLink: telegramLink
-        });
-        localStorage.setItem('my_purchased_courses', JSON.stringify(myCourses));
-
-        window.open(telegramLink, '_blank');
-
-        emailjs.send("service_humau1h", "template_367ligo", {
-            email: userEmail,
-            course_name: courseTitle,
-            access_link: telegramLink
-        }).then(() => {}).catch(() => {});
-
-        localStorage.removeItem('checkoutPrice');
-        localStorage.removeItem('checkoutCourseTitle');
-        setTimeout(() => { window.location.href = 'dashboard.html'; }, 3000);
-    }
-
-    function openReportPage() { window.location.href = 'support.html'; }
-</script>
+        function openReportPage() { window.location.href = 'support.html'; }
+    </script>
 </body>
 </html>
